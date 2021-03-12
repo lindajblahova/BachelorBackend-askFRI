@@ -1,30 +1,70 @@
 package sk.uniza.fri.askfri.model;
 
-import javax.persistence.Entity;
-import javax.persistence.EntityListeners;
-import javax.persistence.Id;
+import javax.persistence.*;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity(name = "user_profile")
+@Table(
+        name = "user_profile",
+        uniqueConstraints = {
+                @UniqueConstraint(name = "user_email_unique", columnNames = "email")
+        }
+        )
 public class User {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long idUser;
+
+    @Column(
+            name = "firstname",
+            updatable = false,
+            columnDefinition = "TEXT"
+    )
     private String firstname;
+    @Column(
+            name = "surname",
+            updatable = false,
+            columnDefinition = "TEXT"
+    )
     private String surname;
+    @Column(
+            name = "email",
+            updatable = false,
+            nullable = false,
+            columnDefinition = "TEXT"
+
+    )
     private String email;
+    @Column(
+            name = "password",
+            nullable = false,
+            columnDefinition = "VARCHAR(80)"
+
+    )
     private String password;
+    @Column(
+            name = "role",
+            columnDefinition = "VARCHAR(10)"
+
+    )
     private String role;
 
-    public User(Long idUser,String firstname,
+    @OneToMany(mappedBy = "owner")
+    private Set<Room> roomSet = new HashSet<Room>();
+
+    public User(String firstname,
                 String surname, String email,
                 String password, String role) {
-        this.idUser = idUser;
         this.firstname = firstname;
         this.surname = surname;
         this.email = email;
         this.password = password;
         this.role = role;
     }
+
+    public User() {}
 
     public Long getIdUser() {
         return idUser;
