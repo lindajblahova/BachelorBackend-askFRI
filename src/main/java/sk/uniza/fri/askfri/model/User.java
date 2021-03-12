@@ -51,7 +51,7 @@ public class User {
     )
     private String role;
 
-    @OneToMany(mappedBy = "owner")
+    @OneToMany(mappedBy = "idOwner")
     private Set<Room> roomSet = new HashSet<Room>();
 
     public User(String firstname,

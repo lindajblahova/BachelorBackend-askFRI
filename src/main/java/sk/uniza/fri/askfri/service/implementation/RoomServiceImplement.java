@@ -1,20 +1,29 @@
 package sk.uniza.fri.askfri.service.implementation;
 
+import org.springframework.stereotype.Service;
 import sk.uniza.fri.askfri.dao.IRoomRepository;
 import sk.uniza.fri.askfri.model.Room;
 import sk.uniza.fri.askfri.model.User;
+import sk.uniza.fri.askfri.model.dto.RoomDto;
 import sk.uniza.fri.askfri.service.IRoomService;
+import sk.uniza.fri.askfri.service.IUserService;
 
 import java.util.List;
 
+@Service
 public class RoomServiceImplement implements IRoomService {
 
     private IRoomRepository roomRepository;
+    private IUserService userService;
+
+    public RoomServiceImplement(IRoomRepository roomRepository, IUserService userService) {
+        this.roomRepository = roomRepository;
+        this.userService = userService;
+    }
 
     @Override
     public Room saveRoom(Room room) {
-        this.roomRepository.save(room);
-        return room;
+        return this.roomRepository.save(room);
     }
 
     @Override
@@ -39,6 +48,6 @@ public class RoomServiceImplement implements IRoomService {
 
     @Override
     public List<Room> findAllUserRooms(User user) {
-        return this.roomRepository.findByOwnerOrderByIdRoomDesc(user);
+        return this.roomRepository.findByIdOwnerOrderByIdRoomDesc(user);
     }
 }

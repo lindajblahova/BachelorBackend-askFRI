@@ -4,6 +4,7 @@ import javax.persistence.Column;
 
 public class RoomDto {
 
+    private String userEmail;
     private String roomName;
     private String roomPasscode;
     private boolean active = true;
@@ -30,5 +31,13 @@ public class RoomDto {
 
     public void setActive(boolean active) {
         this.active = active;
+    }
+
+    public String getUserEmail() {
+        return userEmail;
+    }
+
+    public void setUserEmail(String userEmail) {
+        this.userEmail = userEmail;
     }
 }

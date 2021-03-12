@@ -7,7 +7,6 @@ import sk.uniza.fri.askfri.model.User;
 import sk.uniza.fri.askfri.service.IUserService;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class UserServiceImplement implements IUserService {
@@ -32,12 +31,12 @@ public class UserServiceImplement implements IUserService {
 
     @Override
     public User getUser(String email) {
-        User existingUser = userRepository.findByEmail(email);
+        User existingUser = this.userRepository.findByEmail(email);
         if (existingUser != null) {
             return existingUser;
         } else {
             //TODO: return exception
-            return existingUser;
+            return null;
         }
     }
 

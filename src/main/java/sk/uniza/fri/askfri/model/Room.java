@@ -2,7 +2,6 @@ package sk.uniza.fri.askfri.model;
 
 
 import javax.persistence.*;
-import java.util.Set;
 
 @Entity(name = "room")
 @Table(name = "room")
@@ -14,7 +13,7 @@ public class Room {
 
     @ManyToOne
     @JoinColumn(name="id_user", nullable=false)
-    private User owner;
+    private User idOwner;
 
     @Column(
             name = "room_name",
@@ -38,8 +37,8 @@ public class Room {
 
     public Room() {}
 
-    public Room(User owner, String roomName, String roomPasscode, boolean active) {
-        this.owner = owner;
+    public Room(User idOwner, String roomName, String roomPasscode, boolean active) {
+        this.idOwner = idOwner;
         this.roomName = roomName;
         this.roomPasscode = roomPasscode;
         this.active = active;
@@ -53,12 +52,12 @@ public class Room {
         this.idRoom = idRoom;
     }
 
-    public User getOwner() {
-        return owner;
+    public Long getIdOwner() {
+        return idOwner.getIdUser();
     }
 
-    public void setOwner(User idOwner) {
-        this.owner = idOwner;
+    public void setIdOwner(User idOwner) {
+        this.idOwner = idOwner;
     }
 
     public String getRoomName() {
