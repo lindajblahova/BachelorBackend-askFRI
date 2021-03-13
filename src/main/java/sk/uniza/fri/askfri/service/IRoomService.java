@@ -8,9 +8,10 @@ import java.util.List;
 public interface IRoomService {
 
     Room saveRoom(Room room);
-    boolean existsRoomByPasscode(String roomPasscode);
-    Room findRoomByPasscode(String roomPasscode);
+    boolean existsRoomByPasscodeAndActive(String roomPasscode);
+    Room findByIdRoom(Long idRoom);
     List<Room> findAllRooms();
     List<Room> findAllUserRooms(User user);
+    void deleteRoom(Long idRoom);
 
 }

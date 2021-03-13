@@ -4,6 +4,7 @@ import javax.persistence.Column;
 
 public class RoomDto {
 
+    private Long idRoom;
     private String userEmail;
     private String roomName;
     private String roomPasscode;
@@ -39,5 +40,13 @@ public class RoomDto {
 
     public void setUserEmail(String userEmail) {
         this.userEmail = userEmail;
+    }
+
+    public Long getIdRoom() {
+        return idRoom;
+    }
+
+    public void setIdRoom(Long idRoom) {
+        this.idRoom = idRoom;
     }
 }

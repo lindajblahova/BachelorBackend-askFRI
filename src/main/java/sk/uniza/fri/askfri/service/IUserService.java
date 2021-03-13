@@ -9,7 +9,8 @@ public interface IUserService {
 
     User saveUser(User user);
     boolean existsByEmail(String email);
-    User getUser(String email); //throws NotFoundException;
+    User getUserByEmail(String email); //throws NotFoundException;
+    User getUserByIdUser(Long idUser);
     List<User> getAllUsers();
     void deleteUser(long id);
 }

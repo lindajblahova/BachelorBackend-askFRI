@@ -13,12 +13,10 @@ import java.util.List;
 @Service
 public class RoomServiceImplement implements IRoomService {
 
-    private IRoomRepository roomRepository;
-    private IUserService userService;
+    private final IRoomRepository roomRepository;
 
-    public RoomServiceImplement(IRoomRepository roomRepository, IUserService userService) {
+    public RoomServiceImplement(IRoomRepository roomRepository) {
         this.roomRepository = roomRepository;
-        this.userService = userService;
     }
 
     @Override
@@ -27,13 +25,13 @@ public class RoomServiceImplement implements IRoomService {
     }
 
     @Override
-    public boolean existsRoomByPasscode(String roomPasscode) {
-        return this.roomRepository.existsByRoomPasscode(roomPasscode);
+    public boolean existsRoomByPasscodeAndActive(String roomPasscode) {
+        return this.roomRepository.existsByRoomPasscodeAndActive(roomPasscode, true);
     }
 
     @Override
-    public Room findRoomByPasscode(String roomPasscode) {
-        Room existsRoom = this.roomRepository.findByRoomPasscode(roomPasscode);
+    public Room findByIdRoom(Long idRoom) {
+        Room existsRoom = this.roomRepository.findByIdRoom(idRoom);
         if (existsRoom != null) {
             return existsRoom ;
         } else {
@@ -50,4 +48,10 @@ public class RoomServiceImplement implements IRoomService {
     public List<Room> findAllUserRooms(User user) {
         return this.roomRepository.findByIdOwnerOrderByIdRoomDesc(user);
     }
+
+    @Override
+    public void deleteRoom(Long idRoom) {
+        this.roomRepository.deleteById(idRoom);
+    }
+
 }

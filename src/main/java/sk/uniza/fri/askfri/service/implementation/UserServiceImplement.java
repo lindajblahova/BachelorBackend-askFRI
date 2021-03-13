@@ -30,14 +30,19 @@ public class UserServiceImplement implements IUserService {
     }
 
     @Override
-    public User getUser(String email) {
+    public User getUserByEmail(String email) {
         User existingUser = this.userRepository.findByEmail(email);
         if (existingUser != null) {
             return existingUser;
         } else {
             //TODO: return exception
-            return null;
+            return existingUser;
         }
+    }
+
+    @Override
+    public User getUserByIdUser(Long idUser) {
+        return this.userRepository.findByIdUser(idUser);
     }
 
     @Override
@@ -49,4 +54,5 @@ public class UserServiceImplement implements IUserService {
     public void deleteUser(long id) {
             this.userRepository.deleteById(id);
     }
+
 }

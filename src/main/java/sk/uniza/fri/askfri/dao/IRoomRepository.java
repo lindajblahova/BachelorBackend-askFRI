@@ -9,8 +9,9 @@ import java.util.List;
 
 @Repository
 public interface IRoomRepository extends JpaRepository<Room, Long> {
-    boolean existsByRoomPasscode(String roomPasscode);
-    Room findByRoomPasscode(String roomPasscode);
+    boolean existsByRoomPasscodeAndActive(String roomPasscode, boolean isActive);
+    Room findByIdRoom(Long idRoom);
     List<Room> findAllByOrderByIdRoomAsc();
     List<Room> findByIdOwnerOrderByIdRoomDesc(User owner);
+    void deleteAllByIdOwner(User owner);
 }

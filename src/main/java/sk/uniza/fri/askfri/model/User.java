@@ -46,12 +46,13 @@ public class User {
     private String password;
     @Column(
             name = "role",
+            updatable = false,
             columnDefinition = "VARCHAR(10)"
 
     )
     private String role;
 
-    @OneToMany(mappedBy = "idOwner")
+    @OneToMany(mappedBy = "idOwner", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Room> roomSet = new HashSet<Room>();
 
     public User(String firstname,
