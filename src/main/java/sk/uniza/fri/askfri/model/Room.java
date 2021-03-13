@@ -39,6 +39,9 @@ public class Room {
     @OneToMany(mappedBy = "idRoom", cascade = CascadeType.ALL, orphanRemoval = true)
     private final Set<Message> messagesSet = new HashSet<Message>();
 
+    @OneToMany(mappedBy = "idRoom", cascade = CascadeType.ALL, orphanRemoval = true)
+    private final Set<Question> questionSet = new HashSet<Question>();
+
     public Room() {}
 
     public Room(User idOwner, String roomName, String roomPasscode, boolean active) {
@@ -87,4 +90,5 @@ public class Room {
     public void setActive(boolean active) {
         this.active = active;
     }
+
 }

@@ -6,9 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import sk.uniza.fri.askfri.model.Message;
 import sk.uniza.fri.askfri.model.Room;
-import sk.uniza.fri.askfri.model.User;
 import sk.uniza.fri.askfri.model.dto.MessageDto;
-import sk.uniza.fri.askfri.model.dto.RoomDto;
 import sk.uniza.fri.askfri.service.IMessageService;
 import sk.uniza.fri.askfri.service.IRoomService;
 
