@@ -2,6 +2,8 @@ package sk.uniza.fri.askfri.model;
 
 
 import javax.persistence.*;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity(name = "question")
 @Table(name = "question")
@@ -40,6 +42,9 @@ public class Question {
             columnDefinition = "BOOLEAN"
     )
     private boolean answersDisplayed;
+
+    @OneToMany(mappedBy = "idQuestion", cascade = CascadeType.ALL, orphanRemoval = true)
+    private final Set<Answer> questionSet = new HashSet<Answer>();
 
     public Question(Room idRoom, Integer type, String content, boolean questionDisplayed, boolean answersDisplayed) {
         this.idRoom = idRoom;

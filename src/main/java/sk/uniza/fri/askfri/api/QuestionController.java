@@ -41,7 +41,7 @@ public class QuestionController {
     }
 
     @GetMapping(value = "/room")
-    public List<QuestionDto> getAllRoomMessages(@RequestBody Long idRoom) {
+    public List<QuestionDto> getAllRoomQuestions(@RequestBody Long idRoom) {
         Room parentRoom = this.roomService.findByIdRoom(idRoom);
         return this.questionService.findAllRoomQuestions(parentRoom)
                 .stream()
@@ -78,7 +78,7 @@ public class QuestionController {
     }
 
     @DeleteMapping(value = "/delete")
-    public ResponseEntity deleteMessage(@RequestBody Long idQuestion) {
+    public ResponseEntity deleteQuestion(@RequestBody Long idQuestion) {
         this.questionService.deleteQuestion(idQuestion);
         return new ResponseEntity(HttpStatus.OK);
     }
