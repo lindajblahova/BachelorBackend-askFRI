@@ -55,6 +55,9 @@ public class User {
     @OneToMany(mappedBy = "idOwner", cascade = CascadeType.ALL, orphanRemoval = true)
     private final Set<Room> roomSet = new HashSet<Room>();
 
+    @OneToMany(mappedBy = "idUser", cascade = CascadeType.ALL, orphanRemoval = true)
+    private final Set<AnsweredQuestion> answeredQuestionSet = new HashSet<AnsweredQuestion>();
+
     public User(String firstname,
                 String surname, String email,
                 String password, String role) {

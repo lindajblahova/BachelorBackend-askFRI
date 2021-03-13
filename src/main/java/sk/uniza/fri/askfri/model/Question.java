@@ -46,6 +46,9 @@ public class Question {
     @OneToMany(mappedBy = "idQuestion", cascade = CascadeType.ALL, orphanRemoval = true)
     private final Set<Answer> questionSet = new HashSet<Answer>();
 
+    @OneToMany(mappedBy = "idQuestion", cascade = CascadeType.ALL, orphanRemoval = true)
+    private final Set<AnsweredQuestion> answeredQuestionSet = new HashSet<AnsweredQuestion>();
+
     public Question(Room idRoom, Integer type, String content, boolean questionDisplayed, boolean answersDisplayed) {
         this.idRoom = idRoom;
         this.type = type;
