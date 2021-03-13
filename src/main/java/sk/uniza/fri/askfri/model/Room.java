@@ -2,6 +2,8 @@ package sk.uniza.fri.askfri.model;
 
 
 import javax.persistence.*;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity(name = "room")
 @Table(name = "room")
@@ -34,6 +36,8 @@ public class Room {
     )
     private boolean active;
 
+    @OneToMany(mappedBy = "idRoom", cascade = CascadeType.ALL, orphanRemoval = true)
+    private final Set<Message> messagesSet = new HashSet<Message>();
 
     public Room() {}
 

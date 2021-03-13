@@ -53,7 +53,7 @@ public class User {
     private String role;
 
     @OneToMany(mappedBy = "idOwner", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<Room> roomSet = new HashSet<Room>();
+    private final Set<Room> roomSet = new HashSet<Room>();
 
     public User(String firstname,
                 String surname, String email,

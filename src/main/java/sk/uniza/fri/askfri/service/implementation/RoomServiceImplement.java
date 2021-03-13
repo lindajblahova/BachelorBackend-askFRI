@@ -30,8 +30,13 @@ public class RoomServiceImplement implements IRoomService {
     }
 
     @Override
+    public Room findRoomByPasscodeAndActive(String roomPasscode) {
+        return this.roomRepository.findByRoomPasscodeAndActive(roomPasscode,true);
+    }
+
+    @Override
     public Room findByIdRoom(Long idRoom) {
-        Room existsRoom = this.roomRepository.findByIdRoom(idRoom);
+        Room existsRoom = this.roomRepository.findRoomByIdRoom(idRoom);
         if (existsRoom != null) {
             return existsRoom ;
         } else {

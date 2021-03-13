@@ -9,6 +9,7 @@ public interface IRoomService {
 
     Room saveRoom(Room room);
     boolean existsRoomByPasscodeAndActive(String roomPasscode);
+    Room findRoomByPasscodeAndActive(String roomPasscode);
     Room findByIdRoom(Long idRoom);
     List<Room> findAllRooms();
     List<Room> findAllUserRooms(User user);
