@@ -5,7 +5,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import sk.uniza.fri.askfri.model.*;
-import sk.uniza.fri.askfri.model.dto.AnsweredQuestionDto;
 import sk.uniza.fri.askfri.model.dto.LikedMessageDto;
 import sk.uniza.fri.askfri.service.ILikedMessageService;
 import sk.uniza.fri.askfri.service.IMessageService;
@@ -13,6 +12,7 @@ import sk.uniza.fri.askfri.service.IUserService;
 
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/liked")
@@ -51,10 +51,13 @@ public class LikedMessageController {
     }
 
     @GetMapping(value = "/user")
-    public List<Integer> getAllQuestionAnswers(@RequestBody Long idUser) {
+    public Set<LikedMessageDto> getAllQuestionAnswers(@RequestBody Long idUser) {
         User parentUser = this.userService.getUserByIdUser(idUser);
-        return this.likedMessageService.userLikedMessages(parentUser.getIdUser());
-        //return parentUser.getLikedMessageSet();
+        return parentUser.getLikedMessageSet()
+                .stream()
+                .map( messageLike -> this.modelMapper
+                        .map(messageLike, LikedMessageDto.class))
+                .collect(Collectors.toSet());
     }
 
     //TODO: delete like

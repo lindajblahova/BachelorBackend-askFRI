@@ -13,7 +13,7 @@ public class Room {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long idRoom;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="id_user", nullable=false)
     private User idOwner;
 

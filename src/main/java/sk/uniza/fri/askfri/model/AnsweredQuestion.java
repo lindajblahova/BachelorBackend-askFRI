@@ -10,11 +10,11 @@ public class AnsweredQuestion {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long idAnsweredQuestion;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="id_user", nullable=false)
     private User idUser;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="id_question", nullable=false)
     private Question idQuestion;
 

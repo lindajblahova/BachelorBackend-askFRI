@@ -12,6 +12,6 @@ public interface ILikedMessageRepository extends JpaRepository<LikedMessage, Lon
 
     Integer countAllByIdMessage_IdMessage(Long idMessage) ;
 
-    @Query(value = "SELECT idMessage.idMessage FROM LikedMessage WHERE idUser.idUser=?1")
-    List<Integer> selectAllUserLikedMessages(Long idUser);
+    //@Query(value = "SELECT idMessage.idMessage FROM LikedMessage WHERE idUser.idUser=?1")
+    List<Integer> findAllByIdUser_IdUser(Long idUser);
 }

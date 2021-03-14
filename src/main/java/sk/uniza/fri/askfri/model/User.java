@@ -1,5 +1,7 @@
 package sk.uniza.fri.askfri.model;
 
+import org.springframework.data.jpa.repository.Query;
+
 import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Set;

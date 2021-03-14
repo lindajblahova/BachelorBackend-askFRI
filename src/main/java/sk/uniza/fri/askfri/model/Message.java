@@ -13,7 +13,7 @@ public class Message {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long idMessage;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="id_room", nullable=false)
     private Room idRoom;
 

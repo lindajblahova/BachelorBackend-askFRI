@@ -28,7 +28,7 @@ public class LikedMessageServiceImplement implements ILikedMessageService {
 
     @Override
     public List<Integer> userLikedMessages(Long idUser) {
-        return this.likedMessageRepository.selectAllUserLikedMessages(idUser);
+        return this.likedMessageRepository.findAllByIdUser_IdUser(idUser);
     }
 
     @Override

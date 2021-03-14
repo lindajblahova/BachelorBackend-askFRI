@@ -8,17 +8,18 @@ public class LikedMessage {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long idAnsweredQuestion;
+    private Long idLikedMessage;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="id_user", nullable=false)
     private User idUser;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="id_message", nullable=false)
     private Message idMessage;
 
     public LikedMessage() {}
+
     public LikedMessage(User idUser, Message idMessage) {
         this.idUser = idUser;
         this.idMessage = idMessage;
@@ -38,5 +39,13 @@ public class LikedMessage {
 
     public void setIdMessage(Message idMessage) {
         this.idMessage = idMessage;
+    }
+
+    public Long getIdLikedMessage() {
+        return idLikedMessage;
+    }
+
+    public void setIdLikedMessage(Long idLikedMessage) {
+        this.idLikedMessage = idLikedMessage;
     }
 }
