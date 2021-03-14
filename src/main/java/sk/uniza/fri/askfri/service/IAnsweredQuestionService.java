@@ -8,5 +8,5 @@ import java.util.List;
 public interface IAnsweredQuestionService {
     AnsweredQuestion saveAnsweredQuestion(AnsweredQuestion answeredQuestion);
     Integer questionAnswersCount(Long idQuestion);
-    List<AnsweredQuestion> userAnsweredQuestions(Long idUser);
+    List<Integer> userAnsweredQuestions(Long idUser);
 }

@@ -58,6 +58,9 @@ public class User {
     @OneToMany(mappedBy = "idUser", cascade = CascadeType.ALL, orphanRemoval = true)
     private final Set<AnsweredQuestion> answeredQuestionSet = new HashSet<AnsweredQuestion>();
 
+    @OneToMany(mappedBy = "idUser", cascade = CascadeType.ALL, orphanRemoval = true)
+    private final Set<LikedMessage> likedMessageSet = new HashSet<LikedMessage>();
+
     public User(String firstname,
                 String surname, String email,
                 String password, String role) {
@@ -116,5 +119,9 @@ public class User {
 
     public void setRole(String role) {
         this.role = role;
+    }
+
+    public Set<LikedMessage> getLikedMessageSet() {
+        return likedMessageSet;
     }
 }

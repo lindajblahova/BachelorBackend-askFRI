@@ -31,4 +31,9 @@ public class MessageServiceImplement implements IMessageService {
     public void deleteMessage(Long idMessage) {
         this.messageRepository.deleteById(idMessage);
     }
+
+    @Override
+    public Message findByIdMessage(Long idMessage) {
+        return this.messageRepository.findByIdMessage(idMessage);
+    }
 }

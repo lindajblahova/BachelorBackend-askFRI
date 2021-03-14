@@ -2,6 +2,8 @@ package sk.uniza.fri.askfri.model;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity(name = "message")
 @Table(name = "message")
@@ -28,6 +30,9 @@ public class Message {
             columnDefinition="TIMESTAMP DEFAULT CURRENT_TIMESTAMP"
     )
     private Timestamp date;*/
+
+    @OneToMany(mappedBy = "idMessage", cascade = CascadeType.ALL, orphanRemoval = true)
+    private final Set<LikedMessage> likedMessageSet = new HashSet<LikedMessage>();
 
     public Message(Room idRoom, String content) {
         this.idRoom = idRoom;

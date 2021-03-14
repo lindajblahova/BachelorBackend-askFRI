@@ -28,7 +28,7 @@ public class AnsweredQuestionServiceImplement implements IAnsweredQuestionServic
     }
 
     @Override
-    public List<AnsweredQuestion> userAnsweredQuestions(Long idUser) {
-        return this.answeredQuestionRepository.findAllByIdUser_IdUser(idUser);
+    public List<Integer> userAnsweredQuestions(Long idUser) {
+        return this.answeredQuestionRepository.selectAllUserQuestion(idUser);
     }
 }

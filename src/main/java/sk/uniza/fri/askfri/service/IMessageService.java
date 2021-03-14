@@ -10,4 +10,5 @@ public interface IMessageService {
     List<Message> findAllRoomMessages(Room room);
     Message saveMessage(Message message);
     void deleteMessage(Long idMessage);
+    Message findByIdMessage(Long idMessage);
 }

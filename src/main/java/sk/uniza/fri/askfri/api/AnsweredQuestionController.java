@@ -52,11 +52,8 @@ public class AnsweredQuestionController {
     }
 
     @GetMapping(value = "/user")
-    public List<AnsweredQuestionDto> getAllQuestionAnswers(@RequestBody Long idUser) {
+    public List<Integer> getAllQuestionAnswers(@RequestBody Long idUser) {
         User parentUser = this.userService.getUserByIdUser(idUser);
-        return this.answeredQuestionService.userAnsweredQuestions(parentUser.getIdUser())
-                .stream()
-                .map( answeredQuestion ->  modelMapper.map(answeredQuestion, AnsweredQuestionDto.class))
-                .collect(Collectors.toList());
+        return this.answeredQuestionService.userAnsweredQuestions(parentUser.getIdUser());
     }
 }
