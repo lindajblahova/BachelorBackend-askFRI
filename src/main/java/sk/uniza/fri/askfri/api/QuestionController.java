@@ -4,15 +4,17 @@ import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import sk.uniza.fri.askfri.model.Message;
+import sk.uniza.fri.askfri.model.OptionalAnswer;
 import sk.uniza.fri.askfri.model.Question;
 import sk.uniza.fri.askfri.model.Room;
-import sk.uniza.fri.askfri.model.dto.MessageDto;
+import sk.uniza.fri.askfri.model.dto.OptionalAnswerDto;
 import sk.uniza.fri.askfri.model.dto.QuestionDto;
+import sk.uniza.fri.askfri.service.IOptionalAnswerService;
 import sk.uniza.fri.askfri.service.IQuestionService;
 import sk.uniza.fri.askfri.service.IRoomService;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @RestController
@@ -22,11 +24,13 @@ public class QuestionController {
     private final IQuestionService questionService;
     private final IRoomService roomService;
     private final ModelMapper modelMapper;
+    private final IOptionalAnswerService optionalAnswerService;
 
-    public QuestionController(IQuestionService questionService, IRoomService roomService, ModelMapper modelMapper) {
+    public QuestionController(IQuestionService questionService, IRoomService roomService, ModelMapper modelMapper, IOptionalAnswerService optionalAnswerService) {
         this.questionService = questionService;
         this.roomService = roomService;
         this.modelMapper = modelMapper;
+        this.optionalAnswerService = optionalAnswerService;
     }
 
     @PostMapping(value = "/add")
@@ -81,5 +85,26 @@ public class QuestionController {
     public ResponseEntity deleteQuestion(@RequestBody Long idQuestion) {
         this.questionService.deleteQuestion(idQuestion);
         return new ResponseEntity(HttpStatus.OK);
+    }
+
+
+    @PostMapping(value = "/options/add")
+    public ResponseEntity addOptionalAnswer(@RequestBody OptionalAnswerDto optionalAnswerDto) {
+        Question parentQuestion = this.questionService.findByIdQuestion(optionalAnswerDto.getIdQuestion());
+        if (parentQuestion != null) {
+            OptionalAnswer optionalAnswer = this.modelMapper.map( optionalAnswerDto, OptionalAnswer.class);
+            this.optionalAnswerService.saveOptionalAnswer(optionalAnswer);
+            return new ResponseEntity(HttpStatus.OK);
+        }
+        return new ResponseEntity(HttpStatus.BAD_REQUEST);
+    }
+
+    @GetMapping(value = "/options/get")
+    public Set<OptionalAnswer> addOptionalAnswer(@RequestBody Long idQuestion) {
+        Question parentQuestion = this.questionService.findByIdQuestion(idQuestion);
+        if (parentQuestion != null) {
+            return  parentQuestion.getOptionalAnswerSet();
+        }
+        return null;
     }
 }

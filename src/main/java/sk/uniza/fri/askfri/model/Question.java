@@ -49,6 +49,9 @@ public class Question {
     @OneToMany(mappedBy = "idQuestion", cascade = CascadeType.ALL, orphanRemoval = true)
     private final Set<AnsweredQuestion> answeredQuestionSet = new HashSet<AnsweredQuestion>();
 
+    @OneToMany(mappedBy = "idQuestion", cascade = CascadeType.ALL, orphanRemoval = true)
+    private final Set<OptionalAnswer> optionalAnswerSet = new HashSet<OptionalAnswer>();
+
     public Question(Room idRoom, Integer type, String content, boolean questionDisplayed, boolean answersDisplayed) {
         this.idRoom = idRoom;
         this.type = type;
@@ -105,5 +108,9 @@ public class Question {
 
     public void setAnswersDisplayed(boolean answersDisplayed) {
         this.answersDisplayed = answersDisplayed;
+    }
+
+    public Set<OptionalAnswer> getOptionalAnswerSet() {
+        return optionalAnswerSet;
     }
 }
