@@ -1,5 +1,7 @@
 package sk.uniza.fri.askfri.service;
 
+import sk.uniza.fri.askfri.model.AnsweredQuestion;
+import sk.uniza.fri.askfri.model.OptionalAnswer;
 import sk.uniza.fri.askfri.model.Question;
 import sk.uniza.fri.askfri.model.Room;
 
@@ -10,4 +12,6 @@ public interface IQuestionService {
     Question saveQuestion(Question question);
     void deleteQuestion(Long idQuestion);
     Question findByIdQuestion(Long idQuestion);
+
+    OptionalAnswer saveOptionalAnswer(OptionalAnswer optionalAnswer);
 }

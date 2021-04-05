@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
+@CrossOrigin(origins = "*")
 @RequestMapping("/api/rooms")
 public class RoomController {
 
@@ -32,60 +33,58 @@ public class RoomController {
     public List<RoomDto> getAllRooms() {
         return this.roomService.findAllRooms()
                 .stream()
-                .map( room -> {
-                    RoomDto mappedRoom =  modelMapper.map(room, RoomDto.class);
-                    mappedRoom.setUserEmail(this.userService.getUserByIdUser(room.getIdOwner()).getEmail());
-                    return mappedRoom;
-                })
+                .map( room -> modelMapper.map(room, RoomDto.class))
                 .collect(Collectors.toList());
     }
 
-    @GetMapping("/get/user")
-    public List<RoomDto> getAllUserRooms(@RequestBody String email) {
-        User roomOwner = this.userService.getUserByEmail(email);
+    @PostMapping("/get/user")
+    public List<RoomDto> getAllUserRooms(@RequestBody Long id) {
+        User roomOwner = this.userService.getUserByIdUser(id);
         return this.roomService.findAllUserRooms(roomOwner)
                 .stream()
-                .map( room -> {
-                    RoomDto mappedRoom =  modelMapper.map(room, RoomDto.class);
-                    mappedRoom.setUserEmail(this.userService.getUserByIdUser(room.getIdOwner()).getEmail());
-                    return mappedRoom;
-                })
+                .map( room -> modelMapper.map(room, RoomDto.class))
                 .collect(Collectors.toList());
     }
 
     @PostMapping(value = "/add")
-    public ResponseEntity createRoom(@RequestBody RoomDto roomDto) {
-        User roomOwner = this.userService.getUserByEmail(roomDto.getUserEmail());
+    public ResponseEntity<RoomDto> createRoom(@RequestBody RoomDto roomDto) {
         Room newRoom = modelMapper.map(roomDto, Room.class);
+        User roomOwner = this.userService.getUserByIdUser(roomDto.getIdOwner());
         if (this.roomService.existsRoomByPasscodeAndActive(roomDto.getRoomPasscode())) {
-            return new ResponseEntity(HttpStatus.NOT_ACCEPTABLE);
+            return new ResponseEntity<>(null,HttpStatus.NOT_ACCEPTABLE);
         }
-        newRoom.setIdOwner(roomOwner);
-        roomService.saveRoom(newRoom);
-        return new ResponseEntity(HttpStatus.OK);
+        if (roomOwner != null)
+        {
+            newRoom.setIdOwner(roomOwner);
+            RoomDto returnRoom = modelMapper.map(newRoom, RoomDto.class);
+            roomService.saveRoom(newRoom);
+            return new ResponseEntity<>(roomDto,HttpStatus.OK);
+        }
+        return new ResponseEntity<>(roomDto,HttpStatus.BAD_REQUEST);
     }
 
     @PutMapping(value = "/update/passcode")
-    public ResponseEntity updateRoomPasscode(@RequestBody RoomDto roomDto) {
+    public ResponseEntity<RoomDto> updateRoomPasscode(@RequestBody RoomDto roomDto) {
         Room foundRoom = this.roomService.findByIdRoom(roomDto.getIdRoom());
         if (foundRoom.getIdRoom() != null) {
             foundRoom.setRoomPasscode(roomDto.getRoomPasscode());
             foundRoom.setActive(true);
             this.roomService.saveRoom(foundRoom);
-            return new ResponseEntity(HttpStatus.OK);
+            return new ResponseEntity<>(roomDto,HttpStatus.OK);
         }
-        return new ResponseEntity(HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(null,HttpStatus.BAD_REQUEST);
     }
 
     @PutMapping(value = "/update/inactive")
-    public ResponseEntity updateRoomActivity(@RequestBody Long idRoom) {
+    public ResponseEntity<RoomDto> updateRoomActivity(@RequestBody Long idRoom) {
         Room foundRoom = this.roomService.findByIdRoom(idRoom);
         if (foundRoom.getIdRoom() != null) {
             foundRoom.setActive(!foundRoom.isActive());
             this.roomService.saveRoom(foundRoom);
-            return new ResponseEntity(HttpStatus.OK);
+            RoomDto room = this.modelMapper.map(foundRoom,RoomDto.class);
+            return new ResponseEntity<>(room,HttpStatus.OK);
         }
-        return new ResponseEntity(HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(null,HttpStatus.BAD_REQUEST);
     }
 
     /*@PutMapping(value = "/update/active")
@@ -106,8 +105,8 @@ public class RoomController {
 
 
     @DeleteMapping(value = "/delete")
-    public ResponseEntity deleteRoom(@RequestBody Long idRoom) {
+    public ResponseEntity<RoomDto> deleteRoom(@RequestBody Long idRoom) {
         this.roomService.deleteRoom(idRoom);
-        return new ResponseEntity(HttpStatus.OK);
+        return new ResponseEntity<>(null,HttpStatus.OK);
     }
 }

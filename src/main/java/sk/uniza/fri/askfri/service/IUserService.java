@@ -1,9 +1,10 @@
 package sk.uniza.fri.askfri.service;
 
+import sk.uniza.fri.askfri.model.AnsweredQuestion;
+import sk.uniza.fri.askfri.model.LikedMessage;
 import sk.uniza.fri.askfri.model.User;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface IUserService {
 
@@ -13,4 +14,9 @@ public interface IUserService {
     User getUserByIdUser(Long idUser);
     List<User> getAllUsers();
     void deleteUser(long id);
+
+    AnsweredQuestion saveAnsweredQuestion(AnsweredQuestion answeredQuestion);
+
+    LikedMessage saveMessageLike(LikedMessage likedMessage);
+    void deleteMessage(Long idLikedMessage);
 }

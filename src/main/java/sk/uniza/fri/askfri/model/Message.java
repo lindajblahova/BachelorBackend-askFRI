@@ -72,4 +72,8 @@ public class Message {
     public void setIdMessage(Long idMessage) {
         this.idMessage = idMessage;
     }
+
+    public Set<LikedMessage> getLikedMessageSet() {
+        return likedMessageSet;
+    }
 }

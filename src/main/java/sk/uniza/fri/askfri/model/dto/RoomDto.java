@@ -5,7 +5,7 @@ import javax.persistence.Column;
 public class RoomDto {
 
     private Long idRoom;
-    private String userEmail;
+    private Long idOwner;
     private String roomName;
     private String roomPasscode;
     private boolean active = true;
@@ -34,19 +34,19 @@ public class RoomDto {
         this.active = active;
     }
 
-    public String getUserEmail() {
-        return userEmail;
-    }
-
-    public void setUserEmail(String userEmail) {
-        this.userEmail = userEmail;
-    }
-
     public Long getIdRoom() {
         return idRoom;
     }
 
     public void setIdRoom(Long idRoom) {
         this.idRoom = idRoom;
+    }
+
+    public Long getIdOwner() {
+        return idOwner;
+    }
+
+    public void setIdOwner(Long idUser) {
+        this.idOwner = idUser;
     }
 }

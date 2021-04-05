@@ -9,7 +9,6 @@ import sk.uniza.fri.askfri.model.Question;
 import sk.uniza.fri.askfri.model.Room;
 import sk.uniza.fri.askfri.model.dto.OptionalAnswerDto;
 import sk.uniza.fri.askfri.model.dto.QuestionDto;
-import sk.uniza.fri.askfri.service.IOptionalAnswerService;
 import sk.uniza.fri.askfri.service.IQuestionService;
 import sk.uniza.fri.askfri.service.IRoomService;
 
@@ -18,19 +17,19 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @RestController
+@CrossOrigin(origins = "*")
 @RequestMapping("/api/questions")
 public class QuestionController {
 
     private final IQuestionService questionService;
     private final IRoomService roomService;
     private final ModelMapper modelMapper;
-    private final IOptionalAnswerService optionalAnswerService;
 
-    public QuestionController(IQuestionService questionService, IRoomService roomService, ModelMapper modelMapper, IOptionalAnswerService optionalAnswerService) {
+
+    public QuestionController(IQuestionService questionService, IRoomService roomService, ModelMapper modelMapper) {
         this.questionService = questionService;
         this.roomService = roomService;
         this.modelMapper = modelMapper;
-        this.optionalAnswerService = optionalAnswerService;
     }
 
     @PostMapping(value = "/add")
@@ -93,18 +92,24 @@ public class QuestionController {
         Question parentQuestion = this.questionService.findByIdQuestion(optionalAnswerDto.getIdQuestion());
         if (parentQuestion != null) {
             OptionalAnswer optionalAnswer = this.modelMapper.map( optionalAnswerDto, OptionalAnswer.class);
-            this.optionalAnswerService.saveOptionalAnswer(optionalAnswer);
+            this.questionService.saveOptionalAnswer(optionalAnswer);
             return new ResponseEntity(HttpStatus.OK);
         }
         return new ResponseEntity(HttpStatus.BAD_REQUEST);
     }
 
     @GetMapping(value = "/options/get")
-    public Set<OptionalAnswer> addOptionalAnswer(@RequestBody Long idQuestion) {
+    public Set<OptionalAnswer> getQuestionOptionalAnswers(@RequestBody Long idQuestion) {
         Question parentQuestion = this.questionService.findByIdQuestion(idQuestion);
         if (parentQuestion != null) {
             return  parentQuestion.getOptionalAnswerSet();
         }
         return null;
+    }
+
+    @GetMapping(value = "/answered/count")
+    public Integer getQuestionUsersAnsweredCount(@RequestBody Long idQuestion) {
+        Question parentQuestion = this.questionService.findByIdQuestion(idQuestion);
+        return parentQuestion.getAnsweredQuestionSet().size();
     }
 }

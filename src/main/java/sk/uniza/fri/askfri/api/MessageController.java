@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
+@CrossOrigin(origins = "*")
 @RequestMapping("/api/messages")
 public class MessageController {
 
@@ -45,6 +46,12 @@ public class MessageController {
                 .stream()
                 .map( message ->  modelMapper.map(message, MessageDto.class))
                 .collect(Collectors.toList());
+    }
+
+    @GetMapping(value = "/message/likes")
+    public Integer getQuestionUsersAnsweredCount(@RequestBody Long idMessage) {
+        Message parentMessage = this.messageService.findByIdMessage(idMessage);
+        return parentMessage.getLikedMessageSet().size();
     }
 
     @DeleteMapping(value = "/delete")

@@ -11,7 +11,7 @@ public class UserDto {
     private String surname;
     private String email;
     private String password;
-    private String role = "VISITOR";
+    private String role = "User";
 
     public String getFirstname() {
         return firstname;

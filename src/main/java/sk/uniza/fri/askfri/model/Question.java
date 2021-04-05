@@ -113,4 +113,8 @@ public class Question {
     public Set<OptionalAnswer> getOptionalAnswerSet() {
         return optionalAnswerSet;
     }
+
+    public Set<AnsweredQuestion> getAnsweredQuestionSet() {
+        return answeredQuestionSet;
+    }
 }

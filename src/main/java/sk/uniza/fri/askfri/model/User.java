@@ -126,4 +126,8 @@ public class User {
     public Set<LikedMessage> getLikedMessageSet() {
         return likedMessageSet;
     }
+
+    public Set<AnsweredQuestion> getAnsweredQuestionSet() {
+        return answeredQuestionSet;
+    }
 }
