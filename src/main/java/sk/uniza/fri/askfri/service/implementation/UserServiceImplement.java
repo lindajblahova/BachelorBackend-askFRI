@@ -75,7 +75,7 @@ public class UserServiceImplement implements IUserService {
     }
 
     @Override
-    public void deleteMessage(Long idLikedMessage) {
+    public void deleteMessageLike(Long idLikedMessage) {
         this.likedMessageRepository.deleteById(idLikedMessage);
     }
 

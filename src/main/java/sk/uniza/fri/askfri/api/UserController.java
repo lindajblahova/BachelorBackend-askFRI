@@ -42,8 +42,8 @@ public class UserController {
                 .collect(Collectors.toList());
     }
 
-    @PostMapping(value = "/user")
-    public ResponseEntity<User> getUser(@RequestBody String email) {
+    @GetMapping(value = "/useremail/{email}")
+    public ResponseEntity<User> getUser(@PathVariable("email") String email) {
         boolean userExists = this.userService.existsByEmail(email);
         if (userExists) {
             return new ResponseEntity<>(this.userService.getUserByEmail(email),HttpStatus.OK);
@@ -51,10 +51,19 @@ public class UserController {
         return new ResponseEntity<>(null,HttpStatus.BAD_REQUEST); // TODO exception
     }
 
+    @GetMapping(value = "/user/{id}")
+    public ResponseEntity<User> getUser(@PathVariable("id") long id) {
+        User user = this.userService.getUserByIdUser(id);
+        if (user != null) {
+            return new ResponseEntity<>(user,HttpStatus.OK);
+        }
+        return new ResponseEntity<>(null,HttpStatus.BAD_REQUEST); // TODO exception
+    }
+
     @PutMapping(value = "/update")
     public ResponseEntity<UserDto> updateUser(@RequestBody UserDto userDto) {
         User foundUser = this.userService.getUserByEmail(userDto.getEmail());
-        if (foundUser.getIdUser() != null) {
+        if (foundUser != null) {
             foundUser.setPassword(userDto.getPassword());
             this.userService.saveUser(foundUser);
             return new ResponseEntity<>(userDto,HttpStatus.OK);
@@ -62,10 +71,10 @@ public class UserController {
         return new ResponseEntity<>(null,HttpStatus.BAD_REQUEST);
     }
 
-    @DeleteMapping(value = "/delete")
-    public ResponseEntity<User> deleteUser(@RequestBody String email) {
-        User roomsOwner = this.userService.getUserByEmail(email);
-        this.userService.deleteUser(roomsOwner.getIdUser());
+
+    @DeleteMapping(value = "/delete/{id}")
+    public ResponseEntity<User> deleteUser(@PathVariable("id") long id) {
+        this.userService.deleteUser(id);
         return new ResponseEntity<>(null,HttpStatus.OK);
     }
 
@@ -79,14 +88,15 @@ public class UserController {
         User parentUser = this.userService.getUserByIdUser(likedMessageDto.getIdUser());
         LikedMessage likedMessage = modelMapper.map(likedMessageDto, LikedMessage.class);
         if (parentMessage != null && parentUser != null) {
-            this.userService.saveMessageLike(likedMessage);
-            return new ResponseEntity<>(likedMessageDto, HttpStatus.OK);
+            LikedMessage mess = this.userService.saveMessageLike(likedMessage);
+            LikedMessageDto dto = modelMapper.map(mess, LikedMessageDto.class);
+            return new ResponseEntity<>(dto, HttpStatus.OK);
         }
         return new ResponseEntity<>(null,HttpStatus.BAD_REQUEST);
     }
 
-    @GetMapping(value = "/user/messages/liked")
-    public Set<LikedMessageDto> getAllUserLikedMessages(@RequestBody Long idUser) {
+    @GetMapping(value = "/user/messages/liked/{id}")
+    public Set<LikedMessageDto> getAllUserLikedMessages(@PathVariable("id") long idUser) {
         User parentUser = this.userService.getUserByIdUser(idUser);
         return parentUser.getLikedMessageSet()
                 .stream()
@@ -95,9 +105,9 @@ public class UserController {
                 .collect(Collectors.toSet());
     }
 
-    @DeleteMapping(value = "/user/message/unlike")
-    public ResponseEntity<LikedMessageDto> deleteLikeFromMessage(@RequestBody Long idLikedMessage){
-        this.userService.deleteMessage(idLikedMessage); // TODO deletujes tu message!!!
+    @DeleteMapping(value = "/user/message/unlike/{id}")
+    public ResponseEntity<LikedMessageDto> deleteLikeFromMessage(@PathVariable("id") long idLikedMessage){
+        this.userService.deleteMessageLike(idLikedMessage);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

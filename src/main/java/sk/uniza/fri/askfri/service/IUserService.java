@@ -18,5 +18,5 @@ public interface IUserService {
     AnsweredQuestion saveAnsweredQuestion(AnsweredQuestion answeredQuestion);
 
     LikedMessage saveMessageLike(LikedMessage likedMessage);
-    void deleteMessage(Long idLikedMessage);
+    void deleteMessageLike(Long idLikedMessage);
 }

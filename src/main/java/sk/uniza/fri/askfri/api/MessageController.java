@@ -29,18 +29,19 @@ public class MessageController {
     }
 
     @PostMapping(value = "/add")
-    public ResponseEntity createMessage(@RequestBody MessageDto messageDto) {
+    public ResponseEntity<MessageDto> createMessage(@RequestBody MessageDto messageDto) {
         Room parentRoom = this.roomService.findByIdRoom(messageDto.getIdRoom());
         Message message = modelMapper.map(messageDto, Message.class);
         if (parentRoom != null) {
-            this.messageService.saveMessage(message);
-            return new ResponseEntity(HttpStatus.OK);
+            Message mes = this.messageService.saveMessage(message);
+            MessageDto dto = modelMapper.map(mes, MessageDto.class);
+            return new ResponseEntity<>(dto, HttpStatus.OK);
         }
-        return new ResponseEntity(HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(null,HttpStatus.BAD_REQUEST);
     }
 
-    @GetMapping(value = "/room")
-    public List<MessageDto> getAllRoomMessages(@RequestBody Long idRoom) {
+    @GetMapping(value = "/room/{id}")
+    public List<MessageDto> getAllRoomMessages(@PathVariable("id") long idRoom) {
         Room parentRoom = this.roomService.findByIdRoom(idRoom);
         return this.messageService.findAllRoomMessages(parentRoom)
                 .stream()
@@ -48,14 +49,14 @@ public class MessageController {
                 .collect(Collectors.toList());
     }
 
-    @GetMapping(value = "/message/likes")
-    public Integer getQuestionUsersAnsweredCount(@RequestBody Long idMessage) {
+    @GetMapping(value = "/message/likes/{id}")
+    public Integer getMessageLikes(@PathVariable("id") long idMessage) {
         Message parentMessage = this.messageService.findByIdMessage(idMessage);
         return parentMessage.getLikedMessageSet().size();
     }
 
-    @DeleteMapping(value = "/delete")
-    public ResponseEntity deleteMessage(@RequestBody Long idMessage) {
+    @DeleteMapping(value = "/delete/{id}")
+    public ResponseEntity deleteMessage(@PathVariable("id") long idMessage) {
         this.messageService.deleteMessage(idMessage);
         return new ResponseEntity(HttpStatus.OK);
     }

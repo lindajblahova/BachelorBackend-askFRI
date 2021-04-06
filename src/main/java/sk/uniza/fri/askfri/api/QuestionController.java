@@ -33,18 +33,19 @@ public class QuestionController {
     }
 
     @PostMapping(value = "/add")
-    public ResponseEntity createQuestion(@RequestBody QuestionDto questionDto) {
+    public ResponseEntity<QuestionDto> createQuestion(@RequestBody QuestionDto questionDto) {
         Room parentRoom = this.roomService.findByIdRoom(questionDto.getIdRoom());
         Question question = modelMapper.map(questionDto, Question.class);
         if (parentRoom != null) {
-            this.questionService.saveQuestion(question);
-            return new ResponseEntity(HttpStatus.OK);
+            Question quest =  this.questionService.saveQuestion(question);
+            QuestionDto dto = modelMapper.map(quest, QuestionDto.class);
+            return new ResponseEntity<>(dto, HttpStatus.OK);
         }
-        return new ResponseEntity(HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
     }
 
-    @GetMapping(value = "/room")
-    public List<QuestionDto> getAllRoomQuestions(@RequestBody Long idRoom) {
+    @GetMapping(value = "/room/{id}")
+    public List<QuestionDto> getAllRoomQuestions(@PathVariable("id") long idRoom) {
         Room parentRoom = this.roomService.findByIdRoom(idRoom);
         return this.questionService.findAllRoomQuestions(parentRoom)
                 .stream()
@@ -56,9 +57,6 @@ public class QuestionController {
     public ResponseEntity updateQuestionDisplayed(@RequestBody Long idQuestion) {
         Question foundQuestion = this.questionService.findByIdQuestion(idQuestion);
         if (foundQuestion.getIdQuestion() != null) {
-            if (foundQuestion.isAnswersDisplayed() && foundQuestion.isQuestionDisplayed()) {
-                foundQuestion.setAnswersDisplayed(!foundQuestion.isAnswersDisplayed());
-            }
             foundQuestion.setQuestionDisplayed(!foundQuestion.isQuestionDisplayed());
             this.questionService.saveQuestion(foundQuestion);
             return new ResponseEntity(HttpStatus.OK);
@@ -70,9 +68,6 @@ public class QuestionController {
     public ResponseEntity updateAnswersDisplayed(@RequestBody Long idQuestion) {
         Question foundQuestion = this.questionService.findByIdQuestion(idQuestion);
         if (foundQuestion.getIdQuestion() != null) {
-            if (!foundQuestion.isQuestionDisplayed()) {
-                foundQuestion.setQuestionDisplayed(!foundQuestion.isQuestionDisplayed());
-            }
             foundQuestion.setAnswersDisplayed(!foundQuestion.isAnswersDisplayed());
             this.questionService.saveQuestion(foundQuestion);
             return new ResponseEntity(HttpStatus.OK);
@@ -80,8 +75,8 @@ public class QuestionController {
         return new ResponseEntity(HttpStatus.BAD_REQUEST);
     }
 
-    @DeleteMapping(value = "/delete")
-    public ResponseEntity deleteQuestion(@RequestBody Long idQuestion) {
+    @DeleteMapping(value = "/delete/{id}")
+    public ResponseEntity deleteQuestion(@PathVariable("id") long idQuestion) {
         this.questionService.deleteQuestion(idQuestion);
         return new ResponseEntity(HttpStatus.OK);
     }
