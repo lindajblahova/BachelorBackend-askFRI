@@ -7,6 +7,7 @@ import javax.persistence.Id;
 
 public class UserDto {
 
+    private long idUser;
     private String firstname;
     private String surname;
     private String email;
@@ -53,4 +54,11 @@ public class UserDto {
         this.role = role;
     }
 
+    public long getIdUser() {
+        return idUser;
+    }
+
+    public void setIdUser(long idUser) {
+        this.idUser = idUser;
+    }
 }

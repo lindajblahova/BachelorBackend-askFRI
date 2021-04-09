@@ -4,9 +4,11 @@ import org.springframework.stereotype.Service;
 import sk.uniza.fri.askfri.dao.IMessageRepository;
 import sk.uniza.fri.askfri.model.Message;
 import sk.uniza.fri.askfri.model.Room;
+import sk.uniza.fri.askfri.model.dto.MessageDto;
 import sk.uniza.fri.askfri.service.IMessageService;
 
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class MessageServiceImplement implements IMessageService {
@@ -19,7 +21,7 @@ public class MessageServiceImplement implements IMessageService {
 
     @Override
     public List<Message> findAllRoomMessages(Room room) {
-        return this.messageRepository.findAllByIdRoom(room);
+        return this.messageRepository.findAllByIdRoomOrderByIdMessageDesc(room);
     }
 
     @Override
@@ -36,4 +38,9 @@ public class MessageServiceImplement implements IMessageService {
     public Message findByIdMessage(Long idMessage) {
         return this.messageRepository.findByIdMessage(idMessage);
     }
+
+//    @Override
+//    public List<Message> selectMessagesWithLikes(Long idRoom) {
+//        return this.messageRepository.selectMessagesWithLikes(idRoom);
+//    }
 }

@@ -49,15 +49,9 @@ public class MessageController {
                 .collect(Collectors.toList());
     }
 
-    @GetMapping(value = "/message/likes/{id}")
-    public Integer getMessageLikes(@PathVariable("id") long idMessage) {
-        Message parentMessage = this.messageService.findByIdMessage(idMessage);
-        return parentMessage.getLikedMessageSet().size();
-    }
-
     @DeleteMapping(value = "/delete/{id}")
-    public ResponseEntity deleteMessage(@PathVariable("id") long idMessage) {
+    public ResponseEntity<MessageDto> deleteMessage(@PathVariable("id") long idMessage) {
         this.messageService.deleteMessage(idMessage);
-        return new ResponseEntity(HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }

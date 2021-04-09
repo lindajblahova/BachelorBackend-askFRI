@@ -10,12 +10,14 @@ import java.util.List;
 
 @Repository
 public interface IUserRepository extends JpaRepository<User, Long> {
+
     User findByEmail(String email);
     boolean existsByEmail(String email);
     User findByIdUser(Long idUser);
     List<User> findAllByOrderBySurnameAsc();
 
+    /*
     @Modifying
     @Query("update user_profile u set u.password = ?1 where u.idUser = ?2")
-    void setUserPasswordById(String password, Long userId);
+    void setUserPasswordById(String password, Long userId);*/
 }

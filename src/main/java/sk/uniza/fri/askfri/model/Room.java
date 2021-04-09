@@ -36,10 +36,10 @@ public class Room {
     )
     private boolean active;
 
-    @OneToMany(mappedBy = "idRoom", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "idRoom", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private final Set<Message> messagesSet = new HashSet<Message>();
 
-    @OneToMany(mappedBy = "idRoom", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "idRoom", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private final Set<Question> questionSet = new HashSet<Question>();
 
     public Room() {}

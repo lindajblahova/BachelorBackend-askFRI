@@ -43,13 +43,13 @@ public class Question {
     )
     private boolean answersDisplayed;
 
-    @OneToMany(mappedBy = "idQuestion", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "idQuestion", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private final Set<Answer> questionSet = new HashSet<Answer>();
 
-    @OneToMany(mappedBy = "idQuestion", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "idQuestion", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private final Set<AnsweredQuestion> answeredQuestionSet = new HashSet<AnsweredQuestion>();
 
-    @OneToMany(mappedBy = "idQuestion", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "idQuestion", cascade = CascadeType.ALL,  fetch = FetchType.LAZY, orphanRemoval = true)
     private final Set<OptionalAnswer> optionalAnswerSet = new HashSet<OptionalAnswer>();
 
     public Question(Room idRoom, Integer type, String content, boolean questionDisplayed, boolean answersDisplayed) {

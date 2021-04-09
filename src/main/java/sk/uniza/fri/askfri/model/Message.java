@@ -31,8 +31,6 @@ public class Message {
     )
     private Timestamp date;*/
 
-    @OneToMany(mappedBy = "idMessage", cascade = CascadeType.ALL, orphanRemoval = true)
-    private final Set<LikedMessage> likedMessageSet = new HashSet<LikedMessage>();
 
     public Message(Room idRoom, String content) {
         this.idRoom = idRoom;
@@ -69,11 +67,4 @@ public class Message {
         return idMessage;
     }
 
-    public void setIdMessage(Long idMessage) {
-        this.idMessage = idMessage;
-    }
-
-    public Set<LikedMessage> getLikedMessageSet() {
-        return likedMessageSet;
-    }
 }

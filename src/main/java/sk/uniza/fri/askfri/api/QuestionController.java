@@ -54,47 +54,50 @@ public class QuestionController {
     }
 
     @PutMapping(value = "/update/question")
-    public ResponseEntity updateQuestionDisplayed(@RequestBody Long idQuestion) {
+    public ResponseEntity<QuestionDto> updateQuestionDisplayed(@RequestBody Long idQuestion) {
         Question foundQuestion = this.questionService.findByIdQuestion(idQuestion);
         if (foundQuestion.getIdQuestion() != null) {
             foundQuestion.setQuestionDisplayed(!foundQuestion.isQuestionDisplayed());
-            this.questionService.saveQuestion(foundQuestion);
-            return new ResponseEntity(HttpStatus.OK);
+            foundQuestion = this.questionService.saveQuestion(foundQuestion);
+            QuestionDto dto = this.modelMapper.map(foundQuestion, QuestionDto.class);
+            return new ResponseEntity<>(dto,HttpStatus.OK);
         }
-        return new ResponseEntity(HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(null,HttpStatus.BAD_REQUEST);
     }
 
     @PutMapping(value = "/update/answers")
-    public ResponseEntity updateAnswersDisplayed(@RequestBody Long idQuestion) {
+    public ResponseEntity<QuestionDto> updateAnswersDisplayed(@RequestBody Long idQuestion) {
         Question foundQuestion = this.questionService.findByIdQuestion(idQuestion);
         if (foundQuestion.getIdQuestion() != null) {
             foundQuestion.setAnswersDisplayed(!foundQuestion.isAnswersDisplayed());
-            this.questionService.saveQuestion(foundQuestion);
-            return new ResponseEntity(HttpStatus.OK);
+            foundQuestion = this.questionService.saveQuestion(foundQuestion);
+            QuestionDto dto = this.modelMapper.map(foundQuestion, QuestionDto.class);
+            return new ResponseEntity<>(dto,HttpStatus.OK);
         }
-        return new ResponseEntity(HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(null,HttpStatus.BAD_REQUEST);
     }
 
     @DeleteMapping(value = "/delete/{id}")
-    public ResponseEntity deleteQuestion(@PathVariable("id") long idQuestion) {
+    public ResponseEntity<QuestionDto> deleteQuestion(@PathVariable("id") long idQuestion) {
         this.questionService.deleteQuestion(idQuestion);
-        return new ResponseEntity(HttpStatus.OK);
+        return new ResponseEntity<>(null,HttpStatus.OK);
     }
 
 
     @PostMapping(value = "/options/add")
-    public ResponseEntity addOptionalAnswer(@RequestBody OptionalAnswerDto optionalAnswerDto) {
+    public ResponseEntity<OptionalAnswerDto> addOptionalAnswer(@RequestBody OptionalAnswerDto optionalAnswerDto) {
         Question parentQuestion = this.questionService.findByIdQuestion(optionalAnswerDto.getIdQuestion());
         if (parentQuestion != null) {
             OptionalAnswer optionalAnswer = this.modelMapper.map( optionalAnswerDto, OptionalAnswer.class);
-            this.questionService.saveOptionalAnswer(optionalAnswer);
-            return new ResponseEntity(HttpStatus.OK);
+            optionalAnswer = this.questionService.saveOptionalAnswer(optionalAnswer);
+            OptionalAnswerDto dto = this.modelMapper.map(optionalAnswer, OptionalAnswerDto.class);
+            return new ResponseEntity<>(dto,HttpStatus.OK);
         }
-        return new ResponseEntity(HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(null,HttpStatus.BAD_REQUEST);
     }
 
-    @GetMapping(value = "/options/get")
-    public Set<OptionalAnswer> getQuestionOptionalAnswers(@RequestBody Long idQuestion) {
+    @GetMapping(value = "/options/get/{id}")
+    public Set<OptionalAnswer> getQuestionOptionalAnswers(@PathVariable("id") long  idQuestion) {
         Question parentQuestion = this.questionService.findByIdQuestion(idQuestion);
         if (parentQuestion != null) {
             return  parentQuestion.getOptionalAnswerSet();

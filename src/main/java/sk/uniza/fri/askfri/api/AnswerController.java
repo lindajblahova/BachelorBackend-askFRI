@@ -31,18 +31,19 @@ public class AnswerController {
     }
 
     @PostMapping(value = "/add")
-    public ResponseEntity createAnswer(@RequestBody AnswerDto answerDto) {
+    public ResponseEntity<AnswerDto> createAnswer(@RequestBody AnswerDto answerDto) {
         Question parentQuestion = this.questionService.findByIdQuestion(answerDto.getIdQuestion());
         Answer answer = modelMapper.map(answerDto, Answer.class);
         if (parentQuestion != null) {
-            this.answerService.saveAnswer(answer);
-            return new ResponseEntity(HttpStatus.OK);
+            answer = this.answerService.saveAnswer(answer);
+            AnswerDto dto = this.modelMapper.map(answer, AnswerDto.class);
+            return new ResponseEntity<>(dto,HttpStatus.OK);
         }
-        return new ResponseEntity(HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(null,HttpStatus.BAD_REQUEST);
     }
 
-    @GetMapping(value = "/question")
-    public List<AnswerDto> getAllQuestionAnswers(@RequestBody Long idQuestion) {
+    @GetMapping(value = "/question/{id}")
+    public List<AnswerDto> getAllQuestionAnswers(@PathVariable("id") long   idQuestion) {
         Question parentQuestion = this.questionService.findByIdQuestion(idQuestion);
         return this.answerService.findAnswersByIdQuestion(parentQuestion)
                 .stream()

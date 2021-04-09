@@ -11,6 +11,7 @@ import sk.uniza.fri.askfri.model.dto.UserDto;
 import sk.uniza.fri.askfri.service.IRoomService;
 import sk.uniza.fri.askfri.service.IUserService;
 
+import java.lang.reflect.Type;
 import java.sql.SQLOutput;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -73,6 +74,16 @@ public class RoomController {
     public boolean isPasscodeCurrentlyUsed(@PathVariable("passcode") String passcode) {
         Room foundRoom = this.roomService.findRoomByPasscodeAndActive(passcode);
         return foundRoom != null;
+    }
+
+    @GetMapping(value = "/get/room-passcode/{passcode}")
+    public ResponseEntity<RoomDto>  getActiveRoomByPasscode(@PathVariable("passcode") String passcode) {
+        Room foundRoom = this.roomService.findRoomByPasscodeAndActive(passcode);
+        if (foundRoom != null)
+        {
+            return new ResponseEntity<>(this.modelMapper.map(foundRoom, RoomDto.class),HttpStatus.OK);
+        }
+        return new ResponseEntity<>(null,HttpStatus.BAD_REQUEST);
     }
 
     @PutMapping(value = "/update/passcode")

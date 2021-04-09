@@ -1,8 +1,10 @@
 package sk.uniza.fri.askfri.model.dto;
 
+import sk.uniza.fri.askfri.model.LikedMessage;
 import sk.uniza.fri.askfri.model.Room;
 
 import java.sql.Timestamp;
+import java.util.Set;
 
 public class MessageDto {
 
@@ -36,4 +38,5 @@ public class MessageDto {
     public void setIdMessage(Long idMessage) {
         this.idMessage = idMessage;
     }
+
 }

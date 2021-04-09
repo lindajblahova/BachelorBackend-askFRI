@@ -4,6 +4,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.*;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import sk.uniza.fri.askfri.model.User;
 import sk.uniza.fri.askfri.model.dto.UserDto;
@@ -16,23 +17,26 @@ public class RegisterUserController {
 
     private final IUserService userService;
     private final ModelMapper modelMapper;
+    private final PasswordEncoder passwordEncoder;
 
-    public RegisterUserController(IUserService userService, ModelMapper modelMapper) {
+    public RegisterUserController(IUserService userService, ModelMapper modelMapper, PasswordEncoder passwordEncoder) {
         this.userService = userService;
         this.modelMapper = modelMapper;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @PostMapping(value = "/register", consumes = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<User> registerUser(@RequestBody UserDto user) {
         User newUser = modelMapper.map(user, User.class);
-        if (user.getEmail() != null && user.getFirstname() != null &&
-                user.getSurname() != null && user.getPassword() != null) {
+        if (!user.getEmail().equals("") && !user.getFirstname().equals("") &&
+                !user.getSurname().equals("") && !user.getPassword().equals("") ) {
             if (userService.existsByEmail(user.getEmail())) {
                 return new ResponseEntity<>(null,HttpStatus.NOT_ACCEPTABLE);
             }
-
+            newUser.setPassword(this.passwordEncoder.encode(newUser.getPassword()));
             return new ResponseEntity<>(userService.saveUser(newUser),HttpStatus.OK);
         }
         return new ResponseEntity<>(null,HttpStatus.BAD_REQUEST);
     }
+
 }

@@ -54,14 +54,11 @@ public class User {
     )
     private String role;
 
-    @OneToMany(mappedBy = "idOwner", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "idOwner", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private final Set<Room> roomSet = new HashSet<Room>();
 
-    @OneToMany(mappedBy = "idUser", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "idUser", cascade = CascadeType.ALL, fetch = FetchType.LAZY , orphanRemoval = true)
     private final Set<AnsweredQuestion> answeredQuestionSet = new HashSet<AnsweredQuestion>();
-
-    @OneToMany(mappedBy = "idUser", cascade = CascadeType.ALL, orphanRemoval = true)
-    private final Set<LikedMessage> likedMessageSet = new HashSet<LikedMessage>();
 
     public User(String firstname,
                 String surname, String email,
@@ -123,9 +120,6 @@ public class User {
         this.role = role;
     }
 
-    public Set<LikedMessage> getLikedMessageSet() {
-        return likedMessageSet;
-    }
 
     public Set<AnsweredQuestion> getAnsweredQuestionSet() {
         return answeredQuestionSet;

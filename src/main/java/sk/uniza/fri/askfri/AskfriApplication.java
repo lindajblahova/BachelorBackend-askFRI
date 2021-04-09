@@ -5,6 +5,8 @@ import org.modelmapper.config.Configuration;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @SpringBootApplication
 public class AskfriApplication {
@@ -20,5 +22,10 @@ public class AskfriApplication {
 				.setFieldAccessLevel(Configuration.AccessLevel.PUBLIC)
 				.setFieldMatchingEnabled(true);
 		return modelMapper;
+	}
+
+	@Bean
+	PasswordEncoder passwordEncoder() {
+		return new BCryptPasswordEncoder();
 	}
 }
