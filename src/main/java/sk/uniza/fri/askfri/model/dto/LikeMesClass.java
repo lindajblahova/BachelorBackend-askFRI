@@ -1,9 +1,17 @@
 package sk.uniza.fri.askfri.model.dto;
 
-public class LikedMessageDto {
+public class LikeMesClass {
 
     private Long idUser;
     private Long idMessage;
+
+    public LikeMesClass(Long idUser, Long idQuestion) {
+        this.idUser = idUser;
+        this.idMessage = idQuestion;
+    }
+
+    public LikeMesClass() {
+    }
 
     public Long getIdUser() {
         return idUser;

@@ -1,9 +1,7 @@
 package sk.uniza.fri.askfri.service;
 
 import sk.uniza.fri.askfri.model.Room;
-import sk.uniza.fri.askfri.model.User;
-
-import java.util.List;
+import java.util.Set;
 
 public interface IRoomService {
 
@@ -11,8 +9,9 @@ public interface IRoomService {
     boolean existsRoomByPasscodeAndActive(String roomPasscode);
     Room findRoomByPasscodeAndActive(String roomPasscode);
     Room findByIdRoom(Long idRoom);
-    List<Room> findAllRooms();
-    List<Room> findAllUserRooms(User user);
+    Set<Room> findAllRooms();
     void deleteRoom(Long idRoom);
+
+  //  void deleteUserRooms(Long idUser);
 
 }

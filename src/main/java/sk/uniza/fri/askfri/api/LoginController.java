@@ -18,8 +18,8 @@ import sk.uniza.fri.askfri.model.dto.UserDetailsDto;
 import sk.uniza.fri.askfri.security.jwt.JwtService;
 import sk.uniza.fri.askfri.service.IUserService;
 
-@CrossOrigin(origins = "*")
 @RestController
+@CrossOrigin(origins = "*")
 @RequestMapping("/api")
 public class LoginController {
 
@@ -34,9 +34,6 @@ public class LoginController {
 
     @Autowired
     private PasswordEncoder encoder;
-
-    @Autowired
-    private IUserRepository userRepository;
 
     private final IUserService userService;
 
@@ -54,9 +51,9 @@ public class LoginController {
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        String jwt = jwtService.generateJwtToken(authentication);
+        String jwt = this.jwtService.generateJwtToken(authentication);
         UserDetailsDto userDetails = (UserDetailsDto) authentication.getPrincipal();
-        User user =  userRepository.findByEmail(userDetails.getUsername());
+        User user =   this.userService.getUserByEmail(userDetails.getUsername());
 
         return new ResponseEntity<LoginResponse>(new LoginResponse(jwt, user.getIdUser(), user.getRole()), HttpStatus.OK);
     }

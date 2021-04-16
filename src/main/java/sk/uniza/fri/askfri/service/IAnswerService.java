@@ -7,5 +7,4 @@ import java.util.List;
 
 public interface IAnswerService {
     Answer saveAnswer(Answer answer);
-    List<Answer> findAnswersByIdQuestion(Question idQuestion);
 }

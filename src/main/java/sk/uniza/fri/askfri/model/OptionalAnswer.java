@@ -7,11 +7,12 @@ import javax.persistence.*;
 public class OptionalAnswer {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "opt_ans_generator")
+    @SequenceGenerator(name = "opt_ans_generator", sequenceName = "oa_id_seq", allocationSize = 10)
     private Long idOptionalAnswer;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="id_question", nullable=false)
+    @JoinColumn(name="question_id_question", referencedColumnName = "idQuestion", nullable=false, updatable = false)
     private Question idQuestion;
 
     @Column(

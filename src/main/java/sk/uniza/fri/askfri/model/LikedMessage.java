@@ -4,18 +4,17 @@ import javax.persistence.*;
 
 @Entity(name = "LikedMessage")
 @Table(name = "liked_message")
+@IdClass(LikedMessageId.class)
 public class LikedMessage {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long idLikedMessage;
-
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="id_user", nullable=false)
+    @JoinColumn(name="user_profile_id_user", referencedColumnName = "idUser", nullable=false, updatable = false)
     private User idUser;
 
+    @Id
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="id_message", nullable=false)
+    @JoinColumn(name="message_id_message",referencedColumnName = "idMessage", nullable=false, updatable = false)
     private Message idMessage;
 
     public LikedMessage() {}
@@ -25,27 +24,20 @@ public class LikedMessage {
         this.idMessage = idMessage;
     }
 
-    public Long getIdUser() {
-        return idUser.getIdUser();
+    public User getIdUser() {
+        return idUser;
     }
 
     public void setIdUser(User idUser) {
         this.idUser = idUser;
     }
 
-    public Long getIdMessage() {
-        return idMessage.getIdMessage();
+    public Message getIdMessage() {
+        return idMessage;
     }
 
     public void setIdMessage(Message idMessage) {
         this.idMessage = idMessage;
     }
 
-    public Long getIdLikedMessage() {
-        return idLikedMessage;
-    }
-
-    public void setIdLikedMessage(Long idLikedMessage) {
-        this.idLikedMessage = idLikedMessage;
-    }
 }

@@ -9,10 +9,12 @@ import sk.uniza.fri.askfri.model.Question;
 import sk.uniza.fri.askfri.model.Room;
 import sk.uniza.fri.askfri.model.dto.AnswerDto;
 import sk.uniza.fri.askfri.model.dto.QuestionDto;
+import sk.uniza.fri.askfri.model.dto.ResponseDto;
 import sk.uniza.fri.askfri.service.IAnswerService;
 import sk.uniza.fri.askfri.service.IQuestionService;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @RestController
@@ -31,23 +33,26 @@ public class AnswerController {
     }
 
     @PostMapping(value = "/add")
-    public ResponseEntity<AnswerDto> createAnswer(@RequestBody AnswerDto answerDto) {
+    public ResponseEntity<ResponseDto> createAnswer(@RequestBody AnswerDto answerDto) {
         Question parentQuestion = this.questionService.findByIdQuestion(answerDto.getIdQuestion());
         Answer answer = modelMapper.map(answerDto, Answer.class);
-        if (parentQuestion != null) {
+        if (parentQuestion != null && !answerDto.getContent().equals("")) {
             answer = this.answerService.saveAnswer(answer);
-            AnswerDto dto = this.modelMapper.map(answer, AnswerDto.class);
-            return new ResponseEntity<>(dto,HttpStatus.OK);
+            return new ResponseEntity<>(new ResponseDto(answer.getIdAnswer(), "Odpoveď bola vytvorená"),HttpStatus.OK);
         }
-        return new ResponseEntity<>(null,HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(null,HttpStatus.NOT_ACCEPTABLE);
     }
 
     @GetMapping(value = "/question/{id}")
-    public List<AnswerDto> getAllQuestionAnswers(@PathVariable("id") long   idQuestion) {
+    public ResponseEntity<Set<AnswerDto>> getAllQuestionAnswers(@PathVariable("id") long  idQuestion) {
         Question parentQuestion = this.questionService.findByIdQuestion(idQuestion);
-        return this.answerService.findAnswersByIdQuestion(parentQuestion)
-                .stream()
-                .map( answer ->  modelMapper.map(answer, AnswerDto.class))
-                .collect(Collectors.toList());
+        if (parentQuestion != null)
+        {
+            return new ResponseEntity<Set<AnswerDto>>(parentQuestion.getAnswersSet()
+                    .stream()
+                    .map(answer -> modelMapper.map(answer, AnswerDto.class))
+                    .collect(Collectors.toSet()),HttpStatus.OK);
+        }
+        return new ResponseEntity<>(null,HttpStatus.NOT_FOUND);
     }
 }

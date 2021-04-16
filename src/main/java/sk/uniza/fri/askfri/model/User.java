@@ -13,10 +13,15 @@ import java.util.Set;
                 @UniqueConstraint(name = "user_email_unique", columnNames = "email")
         }
         )
+@NamedEntityGraph(name = "userRooms",
+        attributeNodes = @NamedAttributeNode("roomSet"))
+@NamedEntityGraph(name = "userAnsweredQuestions",
+        attributeNodes = @NamedAttributeNode("answeredQuestionSet"))
 public class User {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "user_generator")
+    @SequenceGenerator(name = "user_generator", sequenceName = "u_id_seq", allocationSize = 10)
     private Long idUser;
 
     @Column(
@@ -42,7 +47,7 @@ public class User {
     @Column(
             name = "password",
             nullable = false,
-            columnDefinition = "VARCHAR(80)"
+            columnDefinition = "VARCHAR(60)"
 
     )
     private String password;
@@ -59,6 +64,9 @@ public class User {
 
     @OneToMany(mappedBy = "idUser", cascade = CascadeType.ALL, fetch = FetchType.LAZY , orphanRemoval = true)
     private final Set<AnsweredQuestion> answeredQuestionSet = new HashSet<AnsweredQuestion>();
+
+    @OneToMany(mappedBy = "idUser", cascade = CascadeType.ALL, fetch = FetchType.LAZY , orphanRemoval = true)
+    private final Set<LikedMessage> likedMessageSet = new HashSet<LikedMessage>();
 
     public User(String firstname,
                 String surname, String email,
@@ -123,5 +131,13 @@ public class User {
 
     public Set<AnsweredQuestion> getAnsweredQuestionSet() {
         return answeredQuestionSet;
+    }
+
+    public Set<Room> getRoomSet() {
+        return roomSet;
+    }
+
+    public Set<LikedMessage> getLikedMessageSet() {
+        return likedMessageSet;
     }
 }

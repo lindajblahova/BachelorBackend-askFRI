@@ -4,46 +4,37 @@ import javax.persistence.*;
 
 @Entity(name = "answeredQuestion")
 @Table(name = "answered_question")
+@IdClass(AnsweredQuestionId.class)
 public class AnsweredQuestion {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long idAnsweredQuestion;
-
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="id_user", nullable=false)
+    @JoinColumn(name="user_profile_id_user", referencedColumnName = "idUser", nullable=false, updatable = false)
     private User idUser;
 
+    @Id
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="id_question", nullable=false)
+    @JoinColumn(name="question_id_question", referencedColumnName = "idQuestion", nullable=false, updatable = false)
     private Question idQuestion;
 
-    public AnsweredQuestion(User user, Question question) {
-        this.idUser = user;
-        this.idQuestion = question;
+    public AnsweredQuestion() {
     }
 
-    public AnsweredQuestion() {}
+    public AnsweredQuestion(User idUser, Question idQuestion) {
+        this.idUser = idUser;
+        this.idQuestion = idQuestion;
+    }
 
-
-    public Long getIdUser() {
-        return idUser.getIdUser();
+    public User getIdUser() {
+        return idUser;
     }
 
     public void setIdUser(User idUser) {
         this.idUser = idUser;
     }
 
-    public Long getIdAnsweredQuestion() {
-        return idAnsweredQuestion;
-    }
-
-    public void setIdAnsweredQuestion(Long idAnsweredQuestion) {
-        this.idAnsweredQuestion = idAnsweredQuestion;
-    }
-
-    public Long getIdQuestion() {
-        return idQuestion.getIdQuestion();
+    public Question getIdQuestion() {
+        return idQuestion;
     }
 
     public void setIdQuestion(Question idQuestion) {

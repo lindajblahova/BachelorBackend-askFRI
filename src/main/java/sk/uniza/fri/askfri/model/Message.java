@@ -7,14 +7,17 @@ import java.util.Set;
 
 @Entity(name = "message")
 @Table(name = "message")
+@NamedEntityGraph(name = "messageLikes",
+        attributeNodes = @NamedAttributeNode("likedMessageSet"))
 public class Message {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "message_generator")
+    @SequenceGenerator(name = "message_generator", sequenceName = "m_id_seq", allocationSize = 10)
     private Long idMessage;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="id_room", nullable=false)
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name="room_id_room", referencedColumnName = "idRoom", nullable=false, updatable = false)
     private Room idRoom;
 
     @Column(
@@ -24,13 +27,8 @@ public class Message {
     )
     private String content;
 
-    /*@Column(
-            name = "date",
-            updatable = false,
-            columnDefinition="TIMESTAMP DEFAULT CURRENT_TIMESTAMP"
-    )
-    private Timestamp date;*/
-
+    @OneToMany(mappedBy = "idMessage", cascade = CascadeType.ALL, fetch = FetchType.LAZY , orphanRemoval = true)
+    private final Set<LikedMessage> likedMessageSet = new HashSet<LikedMessage>();
 
     public Message(Room idRoom, String content) {
         this.idRoom = idRoom;
@@ -55,16 +53,15 @@ public class Message {
         this.content = content;
     }
 
-    /*public Timestamp getDate() {
-        return date;
-    }
-
-    public void setDate(Timestamp date) {
-        this.date = date;
-    }*/
-
     public Long getIdMessage() {
         return idMessage;
     }
 
+    public void setIdMessage(Long idMessage) {
+        this.idMessage = idMessage;
+    }
+
+    public Set<LikedMessage> getLikedMessageSet() {
+        return likedMessageSet;
+    }
 }

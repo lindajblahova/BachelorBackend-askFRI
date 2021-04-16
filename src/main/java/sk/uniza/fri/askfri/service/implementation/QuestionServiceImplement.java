@@ -8,6 +8,7 @@ import sk.uniza.fri.askfri.model.Question;
 import sk.uniza.fri.askfri.model.Room;
 import sk.uniza.fri.askfri.service.IQuestionService;
 
+import javax.transaction.Transactional;
 import java.util.List;
 
 @Service
@@ -19,11 +20,6 @@ public class QuestionServiceImplement implements IQuestionService {
     public QuestionServiceImplement(IQuestionRepository questionRepository, IOptionalAnswerRepository optionalAnswerRepository) {
         this.questionRepository = questionRepository;
         this.optionalAnswerRepository = optionalAnswerRepository;
-    }
-
-    @Override
-    public List<Question> findAllRoomQuestions(Room room) {
-        return this.questionRepository.findAllByIdRoom(room);
     }
 
     @Override
@@ -45,4 +41,13 @@ public class QuestionServiceImplement implements IQuestionService {
     public OptionalAnswer saveOptionalAnswer(OptionalAnswer optionalAnswer) {
         return this.optionalAnswerRepository.save(optionalAnswer);
     }
+
+    /*
+    @Transactional
+    @Override
+    public void deleteQuestionsByRoom(Long idRoom) {
+        this.questionRepository.deleteQuestionsByIdRoom_IdRoom(idRoom);
+    }
+    */
+
 }

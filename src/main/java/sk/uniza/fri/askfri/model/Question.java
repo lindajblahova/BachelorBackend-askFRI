@@ -7,14 +7,21 @@ import java.util.Set;
 
 @Entity(name = "question")
 @Table(name = "question")
+@NamedEntityGraph(name = "questionAnswers",
+        attributeNodes = @NamedAttributeNode("answersSet"))
+@NamedEntityGraph(name = "questionOptionalAnswers",
+        attributeNodes = @NamedAttributeNode("optionalAnswerSet"))
+@NamedEntityGraph(name = "answeredQuestionSet",
+        attributeNodes = @NamedAttributeNode("answeredQuestionSet"))
 public class Question {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "question_generator")
+    @SequenceGenerator(name = "question_generator", sequenceName = "q_id_seq", allocationSize = 10)
     private Long idQuestion;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="id_room", nullable=false)
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name="room_id_room", referencedColumnName = "idRoom", nullable=false, updatable = false)
     private Room idRoom;
 
     @Column(
@@ -44,7 +51,7 @@ public class Question {
     private boolean answersDisplayed;
 
     @OneToMany(mappedBy = "idQuestion", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
-    private final Set<Answer> questionSet = new HashSet<Answer>();
+    private final Set<Answer> answersSet = new HashSet<Answer>();
 
     @OneToMany(mappedBy = "idQuestion", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private final Set<AnsweredQuestion> answeredQuestionSet = new HashSet<AnsweredQuestion>();
@@ -116,5 +123,9 @@ public class Question {
 
     public Set<AnsweredQuestion> getAnsweredQuestionSet() {
         return answeredQuestionSet;
+    }
+
+    public Set<Answer> getAnswersSet() {
+        return answersSet;
     }
 }

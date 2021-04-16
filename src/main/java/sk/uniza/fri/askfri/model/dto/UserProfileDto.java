@@ -1,17 +1,10 @@
 package sk.uniza.fri.askfri.model.dto;
 
-import javax.persistence.Column;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+public class UserProfileDto {
 
-public class UserDto {
-
-    private long idUser;
     private String firstname;
     private String surname;
     private String email;
-    private String password;
     private String role;
 
     public String getFirstname() {
@@ -38,27 +31,11 @@ public class UserDto {
         this.email = email;
     }
 
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
     public String getRole() {
         return role;
     }
 
     public void setRole(String role) {
         this.role = role;
-    }
-
-    public long getIdUser() {
-        return idUser;
-    }
-
-    public void setIdUser(long idUser) {
-        this.idUser = idUser;
     }
 }

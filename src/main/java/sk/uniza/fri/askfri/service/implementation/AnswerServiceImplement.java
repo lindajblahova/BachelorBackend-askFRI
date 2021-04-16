@@ -23,8 +23,4 @@ public class AnswerServiceImplement implements IAnswerService {
         return this.answerRepository.save(answer);
     }
 
-    @Override
-    public List<Answer> findAnswersByIdQuestion(Question idQuestion) {
-        return this.answerRepository.findAllByIdQuestion(idQuestion);
-    }
 }

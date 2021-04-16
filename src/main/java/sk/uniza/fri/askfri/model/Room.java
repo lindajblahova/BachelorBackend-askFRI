@@ -7,14 +7,19 @@ import java.util.Set;
 
 @Entity(name = "room")
 @Table(name = "room")
+@NamedEntityGraph(name = "roomMessages",
+        attributeNodes = @NamedAttributeNode("messagesSet"))
+@NamedEntityGraph(name = "roomQuestions",
+        attributeNodes = @NamedAttributeNode("questionSet"))
 public class Room {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "room_generator")
+    @SequenceGenerator(name = "room_generator", sequenceName = "r_id_seq", allocationSize = 10)
     private Long idRoom;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="id_user", nullable=false)
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name="user_profile_id_user", referencedColumnName = "idUser", nullable=false, updatable = false)
     private User idOwner;
 
     @Column(
@@ -59,8 +64,8 @@ public class Room {
         this.idRoom = idRoom;
     }
 
-    public Long getIdOwner() {
-        return idOwner.getIdUser();
+    public User getIdOwner() {
+        return idOwner;
     }
 
     public void setIdOwner(User idOwner) {
@@ -91,4 +96,11 @@ public class Room {
         this.active = active;
     }
 
+    public Set<Message> getMessagesSet() {
+        return messagesSet;
+    }
+
+    public Set<Question> getQuestionSet() {
+        return questionSet;
+    }
 }

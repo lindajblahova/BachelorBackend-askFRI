@@ -2,9 +2,12 @@ package sk.uniza.fri.askfri.service;
 
 import sk.uniza.fri.askfri.model.AnsweredQuestion;
 import sk.uniza.fri.askfri.model.LikedMessage;
+import sk.uniza.fri.askfri.model.LikedMessageId;
 import sk.uniza.fri.askfri.model.User;
+import sk.uniza.fri.askfri.model.dto.AnsweredQuestionDto;
 
 import java.util.List;
+import java.util.Set;
 
 public interface IUserService {
 
@@ -16,5 +19,8 @@ public interface IUserService {
     void deleteUser(long id);
 
     AnsweredQuestion saveAnsweredQuestion(AnsweredQuestion answeredQuestion);
+
+    LikedMessage saveLikedMessage(LikedMessage likedMessage);
+    void deleteLikedMessage(LikedMessageId likedMessage);
 
 }

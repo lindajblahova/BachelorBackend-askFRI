@@ -7,11 +7,12 @@ import javax.persistence.*;
 public class Answer {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "answer_generator")
+    @SequenceGenerator(name = "answer_generator", sequenceName = "a_id_seq", allocationSize = 10)
     private Long idAnswer;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="id_question", nullable=false)
+    @JoinColumn(name="question_id_question", referencedColumnName = "idQuestion", nullable=false, updatable = false)
     private Question idQuestion;
 
     @Column(

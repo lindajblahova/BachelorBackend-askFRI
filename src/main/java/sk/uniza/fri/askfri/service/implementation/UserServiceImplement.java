@@ -3,23 +3,30 @@ package sk.uniza.fri.askfri.service.implementation;
 
 import org.springframework.stereotype.Service;
 import sk.uniza.fri.askfri.dao.IAnsweredQuestionRepository;
+import sk.uniza.fri.askfri.dao.ILikedMessageRepository;
 import sk.uniza.fri.askfri.dao.IUserRepository;
 import sk.uniza.fri.askfri.model.AnsweredQuestion;
+import sk.uniza.fri.askfri.model.LikedMessage;
+import sk.uniza.fri.askfri.model.LikedMessageId;
 import sk.uniza.fri.askfri.model.User;
 import sk.uniza.fri.askfri.service.IUserService;
 
+import javax.transaction.Transactional;
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class UserServiceImplement implements IUserService {
 
     private final IUserRepository userRepository;
     private final IAnsweredQuestionRepository answeredQuestionRepository;
+    private final ILikedMessageRepository likedMessageRepository;
 
 
-    public UserServiceImplement(IUserRepository userRepository, IAnsweredQuestionRepository answeredQuestionRepository) {
+    public UserServiceImplement(IUserRepository userRepository, IAnsweredQuestionRepository answeredQuestionRepository, ILikedMessageRepository likedMessageRepository) {
         this.userRepository = userRepository;
         this.answeredQuestionRepository = answeredQuestionRepository;
+        this.likedMessageRepository = likedMessageRepository;
     }
 
 
@@ -63,6 +70,16 @@ public class UserServiceImplement implements IUserService {
     @Override
     public AnsweredQuestion saveAnsweredQuestion(AnsweredQuestion answeredQuestion) {
         return this.answeredQuestionRepository.save(answeredQuestion);
+    }
+
+    @Override
+    public LikedMessage saveLikedMessage(LikedMessage likedMessage) {
+        return this.likedMessageRepository.save(likedMessage);
+    }
+
+    @Override
+    public void deleteLikedMessage(LikedMessageId likedMessage) {
+        this.likedMessageRepository.deleteById(likedMessage);
     }
 
 }

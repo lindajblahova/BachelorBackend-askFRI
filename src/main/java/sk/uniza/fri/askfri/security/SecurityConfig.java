@@ -44,18 +44,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http.cors().and().csrf().disable()
                 .authorizeRequests()
-                .antMatchers("/api/auth/*").permitAll()
-                .antMatchers("/api/public/*").permitAll()
-                .antMatchers("/api/participant-room").permitAll()
-                .antMatchers("/api/home").permitAll()
-                .antMatchers(HttpMethod.GET,"/api/rooms/*").permitAll()
-                .antMatchers(HttpMethod.POST, "/api/**")
-                .permitAll().anyRequest()// all other requests need to be authenticated
-                .authenticated().and().exceptionHandling()// make sure we use stateless session; session won't be used to
+                .antMatchers(HttpMethod.POST,"/api/login").permitAll()
+                .antMatchers(HttpMethod.POST,"/api/register").permitAll()
+                .anyRequest() //all other requests need to be authenticated
+                .authenticated().and().exceptionHandling()
                 .authenticationEntryPoint(unauthorizedHandler).and().sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
         http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
-
     }
 
 

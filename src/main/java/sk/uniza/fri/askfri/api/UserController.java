@@ -1,19 +1,17 @@
 package sk.uniza.fri.askfri.api;
 
 import org.modelmapper.ModelMapper;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 ;
 import sk.uniza.fri.askfri.model.*;
-import sk.uniza.fri.askfri.model.dto.AnsweredQuestionDto;
-import sk.uniza.fri.askfri.model.dto.UserDto;
-import sk.uniza.fri.askfri.model.dto.UserPasswordDto;
+import sk.uniza.fri.askfri.model.dto.*;
 import sk.uniza.fri.askfri.service.*;
 
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -25,65 +23,67 @@ public class UserController {
 
     private final IUserService userService;
     private final IMessageService messageService;
+    private final IRoomService roomService;
     private final ModelMapper modelMapper;
     private final IQuestionService questionService;
     private final PasswordEncoder passwordEncoder;
 
-    public UserController(IUserService userService, IMessageService messageService, ModelMapper modelMapper, IQuestionService questionService, PasswordEncoder passwordEncoder) {
+    public UserController(IUserService userService, IMessageService messageService, IRoomService roomService, ModelMapper modelMapper, IQuestionService questionService, PasswordEncoder passwordEncoder) {
         this.userService = userService;
         this.messageService = messageService;
+        this.roomService = roomService;
         this.modelMapper = modelMapper;
         this.questionService = questionService;
         this.passwordEncoder = passwordEncoder;
     }
 
     @GetMapping(value = "/all")
-    public List<UserDto> getAllUsers() {
-        return userService.getAllUsers()
+    public ResponseEntity<Set<UserProfileDto>> getAllUsers() {
+        return new ResponseEntity<>(userService.getAllUsers()
                 .stream()
-                .map( user -> modelMapper.map(user, UserDto.class))
-                .collect(Collectors.toList());
-    }
-
-    @GetMapping(value = "/useremail/{email}")
-    public ResponseEntity<User> getUser(@PathVariable("email") String email) {
-        boolean userExists = this.userService.existsByEmail(email);
-        if (userExists) {
-            return new ResponseEntity<>(this.userService.getUserByEmail(email),HttpStatus.OK);
-        }
-        return new ResponseEntity<>(null,HttpStatus.NOT_ACCEPTABLE); // TODO exception
+                .map( user -> modelMapper.map(user, UserProfileDto.class))
+                .collect(Collectors.toSet()), HttpStatus.OK);
     }
 
     @GetMapping(value = "/user/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable("id") long id) {
+    public ResponseEntity<UserProfileDto> getUserById(@PathVariable("id") long id) {
         User user = this.userService.getUserByIdUser(id);
         if (user != null) {
-            return new ResponseEntity<>(user,HttpStatus.OK);
+            return new ResponseEntity<>(this.modelMapper.map(user, UserProfileDto.class),HttpStatus.OK);
         }
-        return new ResponseEntity<>(null,HttpStatus.BAD_REQUEST); // TODO exception
+        return new ResponseEntity<>(null,HttpStatus.NOT_FOUND);
     }
 
     @PutMapping(value = "/update")
-    public ResponseEntity<UserPasswordDto> updateUser(@RequestBody UserPasswordDto userPasswordDto) {
+    public ResponseEntity<ResponseDto> updateUser(@RequestBody UserPasswordDto userPasswordDto) {
         User foundUser = this.userService.getUserByIdUser(userPasswordDto.getIdUser());
         if (foundUser != null) {
-            if (this.passwordEncoder.matches(userPasswordDto.getOldPassword(),foundUser.getPassword()))
+            if (this.passwordEncoder.matches(userPasswordDto.getOldPassword(),foundUser.getPassword())
+                && !userPasswordDto.getNewPassword().equals(""))
             {
                 foundUser.setPassword(this.passwordEncoder.encode(userPasswordDto.getNewPassword()));
                 this.userService.saveUser(foundUser);
-                return new ResponseEntity<>(userPasswordDto,HttpStatus.OK);
+                return new ResponseEntity<ResponseDto>(
+                        new ResponseDto(userPasswordDto.getIdUser(), "Heslo bolo zmenené"),HttpStatus.OK);
             }
 
-            return new ResponseEntity<>(null,HttpStatus.OK);
+            return new ResponseEntity<>(null,HttpStatus.NOT_ACCEPTABLE);
         }
-        return new ResponseEntity<>(null,HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(null,HttpStatus.NOT_FOUND);
     }
 
 
     @DeleteMapping(value = "/delete/{id}")
-    public ResponseEntity<User> deleteUser(@PathVariable("id") long id) {
-        this.userService.deleteUser(id);
-        return new ResponseEntity<>(null,HttpStatus.OK);
+    public ResponseEntity<ResponseDto> deleteUser(@PathVariable("id") long id) {
+        try {
+          //  this.userService.deleteUserAnsweredQuestions(id);
+           // this.roomService.deleteUserRooms(id);
+            this.userService.deleteUser(id);
+            return new ResponseEntity<>(new ResponseDto(id, "Používateľ bol vymazaný"),HttpStatus.OK);
+        } catch (EmptyResultDataAccessException e)
+        {
+            return new ResponseEntity<>(null,HttpStatus.NOT_FOUND);
+        }
     }
 
     //--------------------------------------------------------------------------------------
@@ -91,26 +91,69 @@ public class UserController {
     //--------------------------------------------------------------------------------------
 
     @PostMapping(value = "/user/answered/add")
-    public ResponseEntity<AnsweredQuestionDto> createAnsweredQuestion(@RequestBody AnsweredQuestionDto answeredQuestionDto) {
+    public ResponseEntity<ResponseDto> createAnsweredQuestion(@RequestBody AnsweredQuestionDto answeredQuestionDto) {
         Question parentQuestion = this.questionService.findByIdQuestion(answeredQuestionDto.getIdQuestion());
         User parentUser = this.userService.getUserByIdUser(answeredQuestionDto.getIdUser());
-        AnsweredQuestion answeredQuestion = modelMapper.map(answeredQuestionDto, AnsweredQuestion.class);
-        if (parentQuestion != null && parentUser != null) {
-            answeredQuestion = this.userService.saveAnsweredQuestion(answeredQuestion);
-            AnsweredQuestionDto dto = this.modelMapper.map(answeredQuestion, AnsweredQuestionDto.class);
-            return new ResponseEntity<>(dto,HttpStatus.OK);
-        }
-        return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
-    }
 
+        if (parentQuestion != null && parentUser != null ) {
+            AnsweredQuestion answeredQuestion = new AnsweredQuestion(parentUser,parentQuestion);
+            answeredQuestion = this.userService.saveAnsweredQuestion(answeredQuestion);
+            parentQuestion.getAnsweredQuestionSet().add(answeredQuestion);
+            parentUser.getAnsweredQuestionSet().add(answeredQuestion);
+            return new ResponseEntity<>(new ResponseDto(answeredQuestion.hashCode(),"Odpoveď používateľa bola zaznamená"),HttpStatus.OK);
+        }
+       return new ResponseEntity<>(null, HttpStatus.NOT_ACCEPTABLE);
+    }
 
     @GetMapping(value = "/user/answered/all/{id}")
-    public Set<AnsweredQuestion> getAllQuestionAnswers(@PathVariable("id") long idUser) {
+    public ResponseEntity<Set<AnsweredQuestionDto>> getAllQuestionAnswers(@PathVariable("id") long idUser) {
+
         User parentUser = this.userService.getUserByIdUser(idUser);
-        if (parentUser != null) {
-            return  parentUser.getAnsweredQuestionSet();
+        Set<AnsweredQuestion> answerSet = parentUser.getAnsweredQuestionSet();
+        Set<AnsQuestionClass> dtoSet = new HashSet<AnsQuestionClass>();
+        if (answerSet != null) {
+            answerSet.forEach(data -> dtoSet.add(new AnsQuestionClass(data.getIdUser().getIdUser(),data.getIdQuestion().getIdQuestion())));
+            return new ResponseEntity<>(dtoSet.stream().map(data -> this.modelMapper.map(data,
+                    AnsweredQuestionDto.class)).collect(Collectors.toSet()), HttpStatus.OK);
         }
-        return null;
+        return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
     }
 
+    //--------------------------------------------------------------------------------------
+    //                                  MESSAGE LIKE
+    //--------------------------------------------------------------------------------------
+    @PostMapping(value = "/user/message/like")
+    public ResponseEntity<ResponseDto> createLikedMessage(@RequestBody LikedMessageDto likedMessageDto) {
+        Message parentMessage = this.messageService.findByIdMessage(likedMessageDto.getIdMessage());
+        User parentUser = this.userService.getUserByIdUser(likedMessageDto.getIdUser());
+        LikedMessage likedMessage = this.modelMapper.map(likedMessageDto, LikedMessage.class);
+        if (parentMessage != null && parentUser != null) {
+            likedMessage = this.userService.saveLikedMessage(likedMessage);
+            parentMessage.getLikedMessageSet().add(likedMessage);
+            parentUser.getLikedMessageSet().add(likedMessage);
+            return new ResponseEntity<>(new ResponseDto(likedMessage.hashCode(),"Like bol zaznamenaný"), HttpStatus.OK);
+        }
+        return new ResponseEntity<>(null,HttpStatus.BAD_REQUEST);
+    }
+
+    @DeleteMapping(value = "/user/message/unlike/{idMessage}/{idUser}")
+    public ResponseEntity<ResponseDto> deleteLikeFromMessage(@PathVariable("idMessage") Long idMessage,
+                                                             @PathVariable("idUser") Long idUser){
+       try
+       {
+           LikedMessageId likedMessageId = new LikedMessageId(idUser,idMessage);
+           User user = this.userService.getUserByIdUser(idUser);
+           Message message = this.messageService.findByIdMessage(idMessage);
+           LikedMessage likedMessage = this.messageService.findLikedMessage(idUser,idMessage);
+           user.getLikedMessageSet().remove(likedMessage);
+           message.getLikedMessageSet().remove(likedMessage);
+           this.userService.deleteLikedMessage(likedMessageId);
+           return new ResponseEntity<>(new ResponseDto(likedMessageId.hashCode(), "Like bol zrušený"), HttpStatus.OK);
+
+       } catch (EmptyResultDataAccessException e)
+       {
+           return new ResponseEntity<>(null,HttpStatus.NOT_FOUND);
+       }
+
+    }
 }

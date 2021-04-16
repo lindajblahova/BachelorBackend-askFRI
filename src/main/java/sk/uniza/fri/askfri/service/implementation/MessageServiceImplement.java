@@ -1,27 +1,23 @@
 package sk.uniza.fri.askfri.service.implementation;
 
 import org.springframework.stereotype.Service;
+import sk.uniza.fri.askfri.dao.ILikedMessageRepository;
 import sk.uniza.fri.askfri.dao.IMessageRepository;
+import sk.uniza.fri.askfri.model.LikedMessage;
 import sk.uniza.fri.askfri.model.Message;
-import sk.uniza.fri.askfri.model.Room;
-import sk.uniza.fri.askfri.model.dto.MessageDto;
 import sk.uniza.fri.askfri.service.IMessageService;
 
-import java.util.List;
-import java.util.Set;
+import javax.transaction.Transactional;
 
 @Service
 public class MessageServiceImplement implements IMessageService {
 
     private final IMessageRepository messageRepository;
+    private final ILikedMessageRepository likedMessageRepository;
 
-    public MessageServiceImplement(IMessageRepository messageRepository) {
+    public MessageServiceImplement(IMessageRepository messageRepository, ILikedMessageRepository likedMessageRepository) {
         this.messageRepository = messageRepository;
-    }
-
-    @Override
-    public List<Message> findAllRoomMessages(Room room) {
-        return this.messageRepository.findAllByIdRoomOrderByIdMessageDesc(room);
+        this.likedMessageRepository = likedMessageRepository;
     }
 
     @Override
@@ -38,6 +34,17 @@ public class MessageServiceImplement implements IMessageService {
     public Message findByIdMessage(Long idMessage) {
         return this.messageRepository.findByIdMessage(idMessage);
     }
+
+    @Override
+    public LikedMessage findLikedMessage(Long idUser, Long idMessage) {
+        return this.likedMessageRepository.findLikedMessageByIdUser_IdUserAndIdMessage_IdMessage(idUser, idMessage);
+    }
+
+  /*  @Transactional
+    @Override
+    public void deleteMessagesByIdRoom(Long idRoom) {
+        this.messageRepository.deleteMessagesByIdRoom_IdRoom(idRoom);
+    }*/
 
 //    @Override
 //    public List<Message> selectMessagesWithLikes(Long idRoom) {
