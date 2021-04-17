@@ -17,10 +17,10 @@ public class Question {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "question_generator")
-    @SequenceGenerator(name = "question_generator", sequenceName = "q_id_seq", allocationSize = 10)
+    @SequenceGenerator(name = "question_generator", sequenceName = "q_id_seq", allocationSize = 1)
     private Long idQuestion;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="room_id_room", referencedColumnName = "idRoom", nullable=false, updatable = false)
     private Room idRoom;
 
@@ -121,11 +121,65 @@ public class Question {
         return optionalAnswerSet;
     }
 
+    public void addOptionalAnswer(OptionalAnswer optionalAnswer)
+    {
+        if (!this.optionalAnswerSet.contains(optionalAnswer))
+        {
+            this.optionalAnswerSet.add(optionalAnswer);
+            optionalAnswer.setIdQuestion(this);
+        }
+    }
+
+    public void removeOptionalAnswer(OptionalAnswer optionalAnswer)
+    {
+        if (this.optionalAnswerSet.contains(optionalAnswer))
+        {
+            this.optionalAnswerSet.remove(optionalAnswer);
+            optionalAnswer.setIdQuestion(this);
+        }
+    }
+
     public Set<AnsweredQuestion> getAnsweredQuestionSet() {
         return answeredQuestionSet;
     }
 
+    public void addAnsweredQuestion(AnsweredQuestion answeredQuestion)
+    {
+        if (!this.answeredQuestionSet.contains(answeredQuestion))
+        {
+            this.answeredQuestionSet.add(answeredQuestion);
+            answeredQuestion.setIdQuestion(this);
+        }
+    }
+
+    public void removeAnsweredQuestion(AnsweredQuestion answeredQuestion)
+    {
+        if (this.answeredQuestionSet.contains(answeredQuestion))
+        {
+            this.answeredQuestionSet.remove(answeredQuestion);
+            answeredQuestion.setIdQuestion(this);
+        }
+    }
+
     public Set<Answer> getAnswersSet() {
         return answersSet;
+    }
+
+    public void addAnswer(Answer answer)
+    {
+        if (!this.answersSet.contains(answer))
+        {
+            this.answersSet.add(answer);
+            answer.setIdQuestion(this);
+        }
+    }
+
+    public void removeAnswer(Answer answer)
+    {
+        if (this.answersSet.contains(answer))
+        {
+            this.answersSet.remove(answer);
+            answer.setIdQuestion(this);
+        }
     }
 }

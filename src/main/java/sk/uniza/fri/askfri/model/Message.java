@@ -13,10 +13,10 @@ public class Message {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "message_generator")
-    @SequenceGenerator(name = "message_generator", sequenceName = "m_id_seq", allocationSize = 10)
+    @SequenceGenerator(name = "message_generator", sequenceName = "m_id_seq", allocationSize = 1)
     private Long idMessage;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="room_id_room", referencedColumnName = "idRoom", nullable=false, updatable = false)
     private Room idRoom;
 
@@ -63,5 +63,23 @@ public class Message {
 
     public Set<LikedMessage> getLikedMessageSet() {
         return likedMessageSet;
+    }
+
+    public void addLikedMessage(LikedMessage likedMessage)
+    {
+        if (!this.likedMessageSet.contains(likedMessage))
+        {
+            this.likedMessageSet.add(likedMessage);
+            likedMessage.setIdMessage(this);
+        }
+    }
+
+    public void removeLikedMessage(LikedMessage likedMessage)
+    {
+        if (this.likedMessageSet.contains(likedMessage))
+        {
+            this.likedMessageSet.remove(likedMessage);
+            likedMessage.setIdMessage(null);
+        }
     }
 }

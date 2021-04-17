@@ -78,9 +78,8 @@ public class RoomController {
         if (roomOwner != null && !roomDto.getRoomPasscode().equals("") &&
             !roomDto.getRoomName().equals(""))
         {
-            newRoom.setIdOwner(roomOwner);
-            newRoom = roomService.saveRoom(newRoom);
-            roomOwner.getRoomSet().add(newRoom); // TODO
+            roomOwner.addRoom(newRoom);
+            this.userService.saveUser(roomOwner);
             return new ResponseEntity<ResponseDto>(new ResponseDto(newRoom.getIdRoom(),
                     "Miestnosť " + newRoom.getRoomName() +  " bola vytvorená"),HttpStatus.OK);
         }
@@ -133,8 +132,8 @@ public class RoomController {
         try {
             Room foundRoom = this.roomService.findByIdRoom(idRoom);
             User owner = foundRoom.getIdOwner();
-            owner.getRoomSet().remove(foundRoom);
-            this.roomService.deleteRoom(idRoom);
+            owner.removeRoom(foundRoom);
+            this.userService.saveUser(owner);
             return new ResponseEntity<>(new ResponseDto(idRoom, "Miestnosť bola vymazaná"),HttpStatus.OK);
         } catch (EmptyResultDataAccessException e)
         {

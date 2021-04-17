@@ -8,7 +8,7 @@ public class Answer {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "answer_generator")
-    @SequenceGenerator(name = "answer_generator", sequenceName = "a_id_seq", allocationSize = 10)
+    @SequenceGenerator(name = "answer_generator", sequenceName = "a_id_seq", allocationSize = 1)
     private Long idAnswer;
 
     @ManyToOne(fetch = FetchType.LAZY)

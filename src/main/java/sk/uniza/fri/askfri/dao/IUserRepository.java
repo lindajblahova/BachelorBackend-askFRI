@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository;
 import sk.uniza.fri.askfri.model.User;
 
 import java.util.List;
+import java.util.Set;
 
 @Repository
 public interface IUserRepository extends JpaRepository<User, Long> {
@@ -14,7 +15,7 @@ public interface IUserRepository extends JpaRepository<User, Long> {
     User findByEmail(String email);
     boolean existsByEmail(String email);
     User findByIdUser(Long idUser);
-    List<User> findAllByOrderBySurnameAsc();
+    Set<User> findAllByOrderBySurnameAsc();
 
     /*
     @Modifying

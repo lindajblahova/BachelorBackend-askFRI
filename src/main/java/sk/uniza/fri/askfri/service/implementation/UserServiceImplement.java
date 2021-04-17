@@ -58,7 +58,7 @@ public class UserServiceImplement implements IUserService {
     }
 
     @Override
-    public List<User> getAllUsers() {
+    public Set<User> getAllUsers() {
         return this.userRepository.findAllByOrderBySurnameAsc();
     }
 

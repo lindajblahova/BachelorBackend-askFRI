@@ -41,8 +41,10 @@ public class QuestionController {
         Question question = modelMapper.map(questionDto, Question.class);
         if (parentRoom != null && !questionDto.getContent().equals("") &&
                 (questionDto.getType() < 4 && questionDto.getType() > -1) ) {
-            question =  this.questionService.saveQuestion(question);
-            parentRoom.getQuestionSet().add(question);
+
+            question = this.questionService.saveQuestion(question);
+            parentRoom.addQuestion(question);
+            this.roomService.saveRoom(parentRoom);
             return new ResponseEntity<>(this.modelMapper.map(question, QuestionDto.class), HttpStatus.OK);
         }
         return new ResponseEntity<>(null, HttpStatus.NOT_ACCEPTABLE);
@@ -63,9 +65,12 @@ public class QuestionController {
     @PutMapping(value = "/update/question")
     public ResponseEntity<ResponseDto> updateQuestionDisplayed(@RequestBody Long idQuestion) {
         Question foundQuestion = this.questionService.findByIdQuestion(idQuestion);
+        Room parentRoom = this.roomService.findByIdRoom(foundQuestion.getIdRoom());
         if (foundQuestion.getIdQuestion() != null) {
+            parentRoom.removeQuestion(foundQuestion);
             foundQuestion.setQuestionDisplayed(!foundQuestion.isQuestionDisplayed());
-            foundQuestion = this.questionService.saveQuestion(foundQuestion);
+            parentRoom.addQuestion(foundQuestion);
+            this.roomService.saveRoom(parentRoom);
             return new ResponseEntity<ResponseDto>(new ResponseDto(foundQuestion.getIdQuestion(),
                     foundQuestion.isQuestionDisplayed() ? "Otázka je zobrazená" :
                             "Otázka nie je zobrazená" ),HttpStatus.OK);
@@ -76,9 +81,12 @@ public class QuestionController {
     @PutMapping(value = "/update/answers")
     public ResponseEntity<ResponseDto> updateAnswersDisplayed(@RequestBody Long idQuestion) {
         Question foundQuestion = this.questionService.findByIdQuestion(idQuestion);
+        Room parentRoom = this.roomService.findByIdRoom(foundQuestion.getIdRoom());
         if (foundQuestion.getIdQuestion() != null) {
+            parentRoom.removeQuestion(foundQuestion);
             foundQuestion.setAnswersDisplayed(!foundQuestion.isAnswersDisplayed());
-            foundQuestion = this.questionService.saveQuestion(foundQuestion);
+            parentRoom.addQuestion(foundQuestion);
+            this.roomService.saveRoom(parentRoom);
             return new ResponseEntity<ResponseDto>(new ResponseDto(foundQuestion.getIdQuestion(),
                     foundQuestion.isAnswersDisplayed() ? "Výsledky sú zobrazené" :
                             "Výsledky nie sú zobrazené" ),HttpStatus.OK);
@@ -90,11 +98,9 @@ public class QuestionController {
     public ResponseEntity<ResponseDto> deleteQuestion(@PathVariable("id") long idQuestion) {
         try {
             Question question = this.questionService.findByIdQuestion(idQuestion);
-            Long parentRoomId = question.getIdRoom();
-            Room parentRoom = this.roomService.findByIdRoom(parentRoomId);
-            question.getOptionalAnswerSet().clear();
-            parentRoom.getQuestionSet().remove(question);
-            this.questionService.deleteQuestion(idQuestion);
+            Room parentRoom = this.roomService.findByIdRoom(question.getIdRoom());
+            parentRoom.removeQuestion(question);
+            this.roomService.saveRoom(parentRoom);
             return new ResponseEntity<>(new ResponseDto(idQuestion, "Otázka bola vymazaná"),HttpStatus.OK);
         } catch (EmptyResultDataAccessException e)
         {
@@ -107,8 +113,8 @@ public class QuestionController {
         Question parentQuestion = this.questionService.findByIdQuestion(optionalAnswerDto.getIdQuestion());
         if (parentQuestion != null && !optionalAnswerDto.getContent().equals("")) {
             OptionalAnswer optionalAnswer = this.modelMapper.map( optionalAnswerDto, OptionalAnswer.class);
-            optionalAnswer = this.questionService.saveOptionalAnswer(optionalAnswer);
-            parentQuestion.getOptionalAnswerSet().add(optionalAnswer);
+            parentQuestion.addOptionalAnswer(optionalAnswer);
+            this.questionService.saveQuestion(parentQuestion);
             return new ResponseEntity<ResponseDto>(new ResponseDto(optionalAnswer.getIdOptionalAnswer(), "Možnosť bola vytvorená"),HttpStatus.OK);
         }
         return new ResponseEntity<>(null,HttpStatus.NOT_ACCEPTABLE);

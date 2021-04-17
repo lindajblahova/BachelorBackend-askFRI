@@ -15,7 +15,7 @@ public interface IUserService {
     boolean existsByEmail(String email);
     User getUserByEmail(String email); //throws NotFoundException;
     User getUserByIdUser(Long idUser);
-    List<User> getAllUsers();
+    Set<User> getAllUsers();
     void deleteUser(long id);
 
     AnsweredQuestion saveAnsweredQuestion(AnsweredQuestion answeredQuestion);

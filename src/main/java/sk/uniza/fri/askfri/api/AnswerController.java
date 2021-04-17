@@ -22,12 +22,10 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/answers")
 public class AnswerController {
 
-    private final IAnswerService answerService;
     private final IQuestionService questionService;
     private final ModelMapper modelMapper;
 
-    public AnswerController(IAnswerService answerService, IQuestionService questionService, ModelMapper modelMapper) {
-        this.answerService = answerService;
+    public AnswerController(IQuestionService questionService, ModelMapper modelMapper) {
         this.questionService = questionService;
         this.modelMapper = modelMapper;
     }
@@ -37,7 +35,8 @@ public class AnswerController {
         Question parentQuestion = this.questionService.findByIdQuestion(answerDto.getIdQuestion());
         Answer answer = modelMapper.map(answerDto, Answer.class);
         if (parentQuestion != null && !answerDto.getContent().equals("")) {
-            answer = this.answerService.saveAnswer(answer);
+            parentQuestion.addAnswer(answer);
+            this.questionService.saveQuestion(parentQuestion);
             return new ResponseEntity<>(new ResponseDto(answer.getIdAnswer(), "Odpoveď bola vytvorená"),HttpStatus.OK);
         }
         return new ResponseEntity<>(null,HttpStatus.NOT_ACCEPTABLE);

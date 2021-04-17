@@ -36,8 +36,8 @@ public class MessageController {
         Room parentRoom = this.roomService.findByIdRoom(messageDto.getIdRoom());
         Message message = modelMapper.map(messageDto, Message.class);
         if (parentRoom != null && !messageDto.getContent().equals("")) {
-            message = this.messageService.saveMessage(message);
-            parentRoom.getMessagesSet().add(message);
+            parentRoom.addMessage(message);
+            this.roomService.saveRoom(parentRoom);
             return new ResponseEntity<ResponseDto>(new ResponseDto(message.getIdMessage(), "Správa bola vytvorená"), HttpStatus.OK);
         }
         return new ResponseEntity<>(null,HttpStatus.NOT_ACCEPTABLE);
@@ -74,10 +74,9 @@ public class MessageController {
     public ResponseEntity<ResponseDto> deleteMessage(@PathVariable("id") long idMessage) {
         try {
             Message message = this.messageService.findByIdMessage(idMessage);
-            Long parentRoomId = message.getIdRoom();
-            Room parentRoom = this.roomService.findByIdRoom(parentRoomId);
-            parentRoom.getMessagesSet().remove(message);
-            this.messageService.deleteMessage(idMessage);
+            Room parentRoom = this.roomService.findByIdRoom(message.getIdRoom());
+            parentRoom.removeMessage(message);
+            this.roomService.saveRoom(parentRoom);
             return new ResponseEntity<ResponseDto>(new ResponseDto(idMessage,
                     "Správa bola vymazaná"),HttpStatus.OK);
         } catch (EmptyResultDataAccessException e)

@@ -1,5 +1,6 @@
 package sk.uniza.fri.askfri.api;
 
+import nonapi.io.github.classgraph.json.JSONUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
@@ -98,6 +99,10 @@ public class UserController {
         if (parentQuestion != null && parentUser != null ) {
             AnsweredQuestion answeredQuestion = new AnsweredQuestion(parentUser,parentQuestion);
             answeredQuestion = this.userService.saveAnsweredQuestion(answeredQuestion);
+            parentUser.addAnsweredQuestion(answeredQuestion);
+            parentQuestion.addAnsweredQuestion(answeredQuestion);
+            this.userService.saveUser(parentUser);
+            this.questionService.saveQuestion(parentQuestion);
             parentQuestion.getAnsweredQuestionSet().add(answeredQuestion);
             parentUser.getAnsweredQuestionSet().add(answeredQuestion);
             return new ResponseEntity<>(new ResponseDto(answeredQuestion.hashCode(),"Odpoveď používateľa bola zaznamená"),HttpStatus.OK);
@@ -126,11 +131,13 @@ public class UserController {
     public ResponseEntity<ResponseDto> createLikedMessage(@RequestBody LikedMessageDto likedMessageDto) {
         Message parentMessage = this.messageService.findByIdMessage(likedMessageDto.getIdMessage());
         User parentUser = this.userService.getUserByIdUser(likedMessageDto.getIdUser());
-        LikedMessage likedMessage = this.modelMapper.map(likedMessageDto, LikedMessage.class);
         if (parentMessage != null && parentUser != null) {
+            LikedMessage likedMessage = new LikedMessage(parentUser,parentMessage);
             likedMessage = this.userService.saveLikedMessage(likedMessage);
-            parentMessage.getLikedMessageSet().add(likedMessage);
-            parentUser.getLikedMessageSet().add(likedMessage);
+            parentUser.addLikedMessage(likedMessage);
+            parentMessage.addLikedMessage(likedMessage);
+            this.userService.saveUser(parentUser);
+            this.messageService.saveMessage(parentMessage);
             return new ResponseEntity<>(new ResponseDto(likedMessage.hashCode(),"Like bol zaznamenaný"), HttpStatus.OK);
         }
         return new ResponseEntity<>(null,HttpStatus.BAD_REQUEST);
@@ -145,9 +152,12 @@ public class UserController {
            User user = this.userService.getUserByIdUser(idUser);
            Message message = this.messageService.findByIdMessage(idMessage);
            LikedMessage likedMessage = this.messageService.findLikedMessage(idUser,idMessage);
-           user.getLikedMessageSet().remove(likedMessage);
-           message.getLikedMessageSet().remove(likedMessage);
+
+           user.removeLikedMessage(likedMessage);
+           message.removeLikedMessage(likedMessage);
            this.userService.deleteLikedMessage(likedMessageId);
+           this.userService.saveUser(user);
+           this.messageService.saveMessage(message);
            return new ResponseEntity<>(new ResponseDto(likedMessageId.hashCode(), "Like bol zrušený"), HttpStatus.OK);
 
        } catch (EmptyResultDataAccessException e)

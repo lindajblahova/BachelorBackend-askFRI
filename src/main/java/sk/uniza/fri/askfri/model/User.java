@@ -21,7 +21,7 @@ public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "user_generator")
-    @SequenceGenerator(name = "user_generator", sequenceName = "u_id_seq", allocationSize = 10)
+    @SequenceGenerator(name = "user_generator", sequenceName = "u_id_seq", allocationSize = 1)
     private Long idUser;
 
     @Column(
@@ -128,16 +128,69 @@ public class User {
         this.role = role;
     }
 
-
     public Set<AnsweredQuestion> getAnsweredQuestionSet() {
         return answeredQuestionSet;
+    }
+
+    public void addAnsweredQuestion(AnsweredQuestion answeredQuestion)
+    {
+        if (!this.answeredQuestionSet.contains(answeredQuestion))
+        {
+            this.answeredQuestionSet.add(answeredQuestion);
+            answeredQuestion.setIdUser(this);
+        }
+    }
+
+    public void removeAnsweredQuestion(AnsweredQuestion answeredQuestion)
+    {
+        if (this.answeredQuestionSet.contains(answeredQuestion))
+        {
+            this.answeredQuestionSet.remove(answeredQuestion);
+            answeredQuestion.setIdUser(null);
+        }
     }
 
     public Set<Room> getRoomSet() {
         return roomSet;
     }
 
+    public void addRoom(Room room)
+    {
+        if (!this.roomSet.contains(room))
+        {
+            this.roomSet.add(room);
+            room.setIdOwner(this);
+        }
+    }
+
+    public void removeRoom(Room room)
+    {
+        if (this.roomSet.contains(room))
+        {
+            this.roomSet.remove(room);
+            room.setIdOwner(null);
+        }
+    }
+
     public Set<LikedMessage> getLikedMessageSet() {
         return likedMessageSet;
+    }
+
+    public void addLikedMessage(LikedMessage likedMessage)
+    {
+        if (!this.likedMessageSet.contains(likedMessage))
+        {
+            this.likedMessageSet.add(likedMessage);
+            likedMessage.setIdUser(this);
+        }
+    }
+
+    public void removeLikedMessage(LikedMessage likedMessage)
+    {
+        if (this.likedMessageSet.contains(likedMessage))
+        {
+            this.likedMessageSet.remove(likedMessage);
+            likedMessage.setIdUser(null);
+        }
     }
 }

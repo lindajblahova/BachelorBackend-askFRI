@@ -15,10 +15,10 @@ public class Room {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "room_generator")
-    @SequenceGenerator(name = "room_generator", sequenceName = "r_id_seq", allocationSize = 10)
+    @SequenceGenerator(name = "room_generator", sequenceName = "r_id_seq", allocationSize = 1)
     private Long idRoom;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="user_profile_id_user", referencedColumnName = "idUser", nullable=false, updatable = false)
     private User idOwner;
 
@@ -100,7 +100,43 @@ public class Room {
         return messagesSet;
     }
 
+    public void addMessage(Message message)
+    {
+        if (!this.messagesSet.contains(message))
+        {
+            this.messagesSet.add(message);
+            message.setIdRoom(this);
+        }
+    }
+
+    public void removeMessage(Message message)
+    {
+        if (this.messagesSet.contains(message))
+        {
+            this.messagesSet.remove(message);
+            message.setIdRoom(this);
+        }
+    }
+
     public Set<Question> getQuestionSet() {
         return questionSet;
+    }
+
+    public void addQuestion(Question question)
+    {
+        if (!this.questionSet.contains(question))
+        {
+            this.questionSet.add(question);
+            question.setIdRoom(this);
+        }
+    }
+
+    public void removeQuestion(Question question)
+    {
+        if (this.questionSet.contains(question))
+        {
+            this.questionSet.remove(question);
+            question.setIdRoom(this);
+        }
     }
 }
