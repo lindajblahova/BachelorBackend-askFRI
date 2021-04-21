@@ -1,26 +1,22 @@
 package sk.uniza.fri.askfri.service;
 
-import sk.uniza.fri.askfri.model.AnsweredQuestion;
-import sk.uniza.fri.askfri.model.LikedMessage;
-import sk.uniza.fri.askfri.model.LikedMessageId;
 import sk.uniza.fri.askfri.model.User;
-import sk.uniza.fri.askfri.model.dto.AnsweredQuestionDto;
+import sk.uniza.fri.askfri.model.dto.*;
+import sk.uniza.fri.askfri.model.dto.user.UserDto;
+import sk.uniza.fri.askfri.model.dto.user.UserPasswordDto;
+import sk.uniza.fri.askfri.model.dto.user.UserProfileDto;
 
-import java.util.List;
 import java.util.Set;
 
 public interface IUserService {
 
     User saveUser(User user);
-    boolean existsByEmail(String email);
-    User getUserByEmail(String email); //throws NotFoundException;
-    User getUserByIdUser(Long idUser);
-    Set<User> getAllUsers();
-    void deleteUser(long id);
-
-    AnsweredQuestion saveAnsweredQuestion(AnsweredQuestion answeredQuestion);
-
-    LikedMessage saveLikedMessage(LikedMessage likedMessage);
-    void deleteLikedMessage(LikedMessageId likedMessage);
+    ResponseDto createUser(UserDto userDto);
+    User getUserByEmail(String email);
+    User findUserByIdUser(Long idUser);
+    UserProfileDto getUserProfileByIdUser(Long idUser);
+    ResponseDto updateUserPassword(UserPasswordDto userPasswordDto);
+    Set<UserProfileDto> getAllUsers();
+    void deleteUser(Long id);
 
 }

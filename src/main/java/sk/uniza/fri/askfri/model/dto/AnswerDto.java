@@ -1,11 +1,5 @@
 package sk.uniza.fri.askfri.model.dto;
 
-import sk.uniza.fri.askfri.model.Question;
-
-import javax.persistence.Column;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-
 public class AnswerDto {
 
     private Long idAnswer;

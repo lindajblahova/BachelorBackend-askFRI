@@ -5,7 +5,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.web.filter.OncePerRequestFilter;
-import sk.uniza.fri.askfri.model.dto.UserDetailsDto;
+import sk.uniza.fri.askfri.model.dto.login.UserDetailsDto;
 import sk.uniza.fri.askfri.service.implementation.UserDetailServiceImplement;
 
 import javax.servlet.FilterChain;
@@ -31,7 +31,7 @@ public class JwtAuthTokenFilter extends OncePerRequestFilter {
 
             String jwt = getJwt(httpServletRequest);
             if (jwt != null && tokenService.validateJwtToken(jwt)) {
-                String username = tokenService.getUserNameFromToke(jwt);
+                String username = tokenService.getUserNameFromToken(jwt);
 
                 UserDetailsDto userDetails = userDetailsServiceimpl.loadUserByUsername(username);
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
@@ -44,7 +44,6 @@ public class JwtAuthTokenFilter extends OncePerRequestFilter {
         } catch (Exception e) {
             LOGGER.warning("Can NOT set user authentication -> Message: { " + e + " }");
         }
-
         filterChain.doFilter(httpServletRequest, httpServletResponse);
     }
 

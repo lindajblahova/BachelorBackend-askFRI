@@ -1,23 +1,15 @@
 package sk.uniza.fri.askfri.api;
 
-import org.modelmapper.ModelMapper;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import sk.uniza.fri.askfri.model.OptionalAnswer;
-import sk.uniza.fri.askfri.model.Question;
-import sk.uniza.fri.askfri.model.Room;
-import sk.uniza.fri.askfri.model.dto.MessageDto;
-import sk.uniza.fri.askfri.model.dto.OptionalAnswerDto;
-import sk.uniza.fri.askfri.model.dto.QuestionDto;
-import sk.uniza.fri.askfri.model.dto.ResponseDto;
+import sk.uniza.fri.askfri.model.dto.*;
+import sk.uniza.fri.askfri.service.IAnswerService;
+import sk.uniza.fri.askfri.service.IAnsweredQuestionService;
 import sk.uniza.fri.askfri.service.IQuestionService;
-import sk.uniza.fri.askfri.service.IRoomService;
 
-import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @RestController
 @CrossOrigin(origins = "*")
@@ -25,83 +17,73 @@ import java.util.stream.Collectors;
 public class QuestionController {
 
     private final IQuestionService questionService;
-    private final IRoomService roomService;
-    private final ModelMapper modelMapper;
+    private final IAnsweredQuestionService answeredQuestionService;
+    private final IAnswerService answerService;
 
-
-    public QuestionController(IQuestionService questionService, IRoomService roomService, ModelMapper modelMapper) {
+    public QuestionController(IQuestionService questionService, IAnsweredQuestionService answeredQuestionService, IAnswerService answerService) {
         this.questionService = questionService;
-        this.roomService = roomService;
-        this.modelMapper = modelMapper;
+        this.answeredQuestionService = answeredQuestionService;
+        this.answerService = answerService;
     }
 
     @PostMapping(value = "/add")
     public ResponseEntity<QuestionDto> createQuestion(@RequestBody QuestionDto questionDto) {
-        Room parentRoom = this.roomService.findByIdRoom(questionDto.getIdRoom());
-        Question question = modelMapper.map(questionDto, Question.class);
-        if (parentRoom != null && !questionDto.getContent().equals("") &&
-                (questionDto.getType() < 4 && questionDto.getType() > -1) ) {
-
-            question = this.questionService.saveQuestion(question);
-            parentRoom.addQuestion(question);
-            this.roomService.saveRoom(parentRoom);
-            return new ResponseEntity<>(this.modelMapper.map(question, QuestionDto.class), HttpStatus.OK);
+        try {
+            QuestionDto dto = this.questionService.createQuestion(questionDto);
+            return new ResponseEntity<>(dto, HttpStatus.OK);
+        } catch (IllegalArgumentException e)
+        {
+            return new ResponseEntity<>(null, HttpStatus.NOT_ACCEPTABLE);
         }
-        return new ResponseEntity<>(null, HttpStatus.NOT_ACCEPTABLE);
     }
 
     @GetMapping(value = "/room/{id}")
-    public ResponseEntity<Set<QuestionDto>> getAllRoomQuestions(@PathVariable("id") long idRoom) {
-        Room parentRoom = this.roomService.findByIdRoom(idRoom);
-        if (parentRoom != null) {
-            return new ResponseEntity<Set<QuestionDto>>(parentRoom.getQuestionSet()
-                    .stream()
-                    .map(question -> modelMapper.map(question, QuestionDto.class))
-                    .collect(Collectors.toSet()), HttpStatus.OK);
+    public ResponseEntity<Set<QuestionDto>> getAllRoomQuestions(@PathVariable("id") Long idRoom) {
+        try {
+            return new ResponseEntity<Set<QuestionDto>>(this.questionService.findQuestionsByRoom(idRoom), HttpStatus.OK );
+        } catch (NullPointerException e)
+        {
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         }
-        return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+    }
+
+    @GetMapping(value = "/room/active/{id}")
+    public ResponseEntity<Set<QuestionDto>> getRoomActiveQuestions(@PathVariable("id") Long idRoom) {
+        try {
+            return new ResponseEntity<Set<QuestionDto>>(this.questionService.findQuestionsByRoomAndActive(idRoom), HttpStatus.OK );
+        } catch (NullPointerException e)
+        {
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+        }
     }
 
     @PutMapping(value = "/update/question")
     public ResponseEntity<ResponseDto> updateQuestionDisplayed(@RequestBody Long idQuestion) {
-        Question foundQuestion = this.questionService.findByIdQuestion(idQuestion);
-        Room parentRoom = this.roomService.findByIdRoom(foundQuestion.getIdRoom());
-        if (foundQuestion.getIdQuestion() != null) {
-            parentRoom.removeQuestion(foundQuestion);
-            foundQuestion.setQuestionDisplayed(!foundQuestion.isQuestionDisplayed());
-            parentRoom.addQuestion(foundQuestion);
-            this.roomService.saveRoom(parentRoom);
-            return new ResponseEntity<ResponseDto>(new ResponseDto(foundQuestion.getIdQuestion(),
-                    foundQuestion.isQuestionDisplayed() ? "Otázka je zobrazená" :
-                            "Otázka nie je zobrazená" ),HttpStatus.OK);
+        try {
+            ResponseDto dto = this.questionService.updateQuestionDisplayed(idQuestion);
+            return new ResponseEntity<ResponseDto>(dto,HttpStatus.OK);
+        } catch (NullPointerException e)
+        {
+            return new ResponseEntity<>(null,HttpStatus.NOT_ACCEPTABLE);
         }
-        return new ResponseEntity<>(null,HttpStatus.NOT_ACCEPTABLE);
     }
 
     @PutMapping(value = "/update/answers")
     public ResponseEntity<ResponseDto> updateAnswersDisplayed(@RequestBody Long idQuestion) {
-        Question foundQuestion = this.questionService.findByIdQuestion(idQuestion);
-        Room parentRoom = this.roomService.findByIdRoom(foundQuestion.getIdRoom());
-        if (foundQuestion.getIdQuestion() != null) {
-            parentRoom.removeQuestion(foundQuestion);
-            foundQuestion.setAnswersDisplayed(!foundQuestion.isAnswersDisplayed());
-            parentRoom.addQuestion(foundQuestion);
-            this.roomService.saveRoom(parentRoom);
-            return new ResponseEntity<ResponseDto>(new ResponseDto(foundQuestion.getIdQuestion(),
-                    foundQuestion.isAnswersDisplayed() ? "Výsledky sú zobrazené" :
-                            "Výsledky nie sú zobrazené" ),HttpStatus.OK);
+        try {
+            ResponseDto dto = this.questionService.updateAnswersDisplayed(idQuestion);
+            return new ResponseEntity<ResponseDto>(dto,HttpStatus.OK);
+        } catch (NullPointerException e)
+        {
+            return new ResponseEntity<>(null,HttpStatus.NOT_ACCEPTABLE);
         }
-        return new ResponseEntity<>(null,HttpStatus.NOT_ACCEPTABLE);
     }
 
     @DeleteMapping(value = "/delete/{id}")
-    public ResponseEntity<ResponseDto> deleteQuestion(@PathVariable("id") long idQuestion) {
+    public ResponseEntity<ResponseDto> deleteQuestion(@PathVariable("id") Long idQuestion) {
         try {
-            Question question = this.questionService.findByIdQuestion(idQuestion);
-            Room parentRoom = this.roomService.findByIdRoom(question.getIdRoom());
-            parentRoom.removeQuestion(question);
-            this.roomService.saveRoom(parentRoom);
-            return new ResponseEntity<>(new ResponseDto(idQuestion, "Otázka bola vymazaná"),HttpStatus.OK);
+            ResponseDto dto = this.questionService.deleteQuestion(idQuestion);
+            return new ResponseEntity<>(dto,HttpStatus.OK);
         } catch (EmptyResultDataAccessException e)
         {
             return new ResponseEntity<>(null,HttpStatus.NOT_FOUND);
@@ -109,23 +91,25 @@ public class QuestionController {
     }
 
     @PostMapping(value = "/options/add")
-    public ResponseEntity<ResponseDto> addOptionalAnswer(@RequestBody OptionalAnswerDto optionalAnswerDto) {
-        Question parentQuestion = this.questionService.findByIdQuestion(optionalAnswerDto.getIdQuestion());
-        if (parentQuestion != null && !optionalAnswerDto.getContent().equals("")) {
-            OptionalAnswer optionalAnswer = this.modelMapper.map( optionalAnswerDto, OptionalAnswer.class);
-            parentQuestion.addOptionalAnswer(optionalAnswer);
-            this.questionService.saveQuestion(parentQuestion);
-            return new ResponseEntity<ResponseDto>(new ResponseDto(optionalAnswer.getIdOptionalAnswer(), "Možnosť bola vytvorená"),HttpStatus.OK);
+    public ResponseEntity<ResponseDto> addOptionalAnswers(@RequestBody OptionalAnswerDto[] optionalAnswerDto) {
+        try {
+            ResponseDto dto = this.questionService.addOptionalAnswer(optionalAnswerDto);
+            return new ResponseEntity<ResponseDto>(dto,HttpStatus.OK);
+        } catch (IllegalArgumentException e)
+        {
+            return new ResponseEntity<>(null,HttpStatus.NOT_ACCEPTABLE);
         }
-        return new ResponseEntity<>(null,HttpStatus.NOT_ACCEPTABLE);
     }
 
     @GetMapping(value = "/options/get/{id}")
-    public ResponseEntity<Set<OptionalAnswer>> getQuestionOptionalAnswers(@PathVariable("id") long  idQuestion) {
-        Question parentQuestion = this.questionService.findByIdQuestion(idQuestion);
-        if (parentQuestion != null) {
-            return new ResponseEntity<Set<OptionalAnswer>>(parentQuestion.getOptionalAnswerSet(),HttpStatus.OK);
+    public ResponseEntity<Set<OptionalAnswerDto>> getQuestionOptionalAnswers(@PathVariable("id") Long  idQuestion) {
+        try
+        {
+            return new ResponseEntity<Set<OptionalAnswerDto>>(
+                    this.questionService.getQuestionOptionalAnswers(idQuestion),HttpStatus.OK);
+        } catch (NullPointerException e)
+        {
+            return new ResponseEntity<>(null,HttpStatus.NOT_FOUND);
         }
-        return new ResponseEntity<>(null,HttpStatus.NOT_FOUND);
     }
 }

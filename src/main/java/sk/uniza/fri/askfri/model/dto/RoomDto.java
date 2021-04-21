@@ -1,7 +1,5 @@
 package sk.uniza.fri.askfri.model.dto;
 
-import javax.persistence.Column;
-
 public class RoomDto {
 
     private Long idRoom;

@@ -1,7 +1,8 @@
-package sk.uniza.fri.askfri.model.dto;
+package sk.uniza.fri.askfri.model.dto.user;
 
 public class UserProfileDto {
 
+    private Long idUser;
     private String firstname;
     private String surname;
     private String email;
@@ -37,5 +38,13 @@ public class UserProfileDto {
 
     public void setRole(String role) {
         this.role = role;
+    }
+
+    public Long getIdUser() {
+        return idUser;
+    }
+
+    public void setIdUser(Long idUser) {
+        this.idUser = idUser;
     }
 }

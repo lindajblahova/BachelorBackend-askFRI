@@ -1,6 +1,9 @@
 package sk.uniza.fri.askfri.model;
 
 
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
 import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
@@ -18,15 +21,17 @@ public class Question {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "question_generator")
     @SequenceGenerator(name = "question_generator", sequenceName = "q_id_seq", allocationSize = 1)
+    @Column(nullable = false, updatable = false)
     private Long idQuestion;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="room_id_room", referencedColumnName = "idRoom", nullable=false, updatable = false)
+    @JoinColumn(name="room_id_room", referencedColumnName = "idRoom", nullable=false)
     private Room idRoom;
 
     @Column(
             name = "type",
             updatable = false,
+            nullable = false,
             columnDefinition = "INT"
     )
     private Integer type;
@@ -34,30 +39,42 @@ public class Question {
     @Column(
             name = "content",
             updatable = false,
+            nullable = false,
             columnDefinition = "TEXT"
     )
     private String content;
 
     @Column(
             name = "question_displayed",
+            nullable = false,
             columnDefinition = "BOOLEAN"
     )
     private boolean questionDisplayed;
 
     @Column(
             name = "answers_displayed",
+            nullable = false,
             columnDefinition = "BOOLEAN"
     )
     private boolean answersDisplayed;
 
-    @OneToMany(mappedBy = "idQuestion", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
-    private final Set<Answer> answersSet = new HashSet<Answer>();
+    @OneToMany(mappedBy = "idQuestion",
+            cascade = {CascadeType.PERSIST, CascadeType.MERGE},
+            fetch = FetchType.LAZY, orphanRemoval = true)
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private Set<Answer> answersSet = new HashSet<Answer>();
 
-    @OneToMany(mappedBy = "idQuestion", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
-    private final Set<AnsweredQuestion> answeredQuestionSet = new HashSet<AnsweredQuestion>();
+    @OneToMany(mappedBy = "idQuestion",
+            cascade = {CascadeType.PERSIST, CascadeType.MERGE},
+            fetch = FetchType.LAZY, orphanRemoval = true)
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private Set<AnsweredQuestion> answeredQuestionSet = new HashSet<AnsweredQuestion>();
 
-    @OneToMany(mappedBy = "idQuestion", cascade = CascadeType.ALL,  fetch = FetchType.LAZY, orphanRemoval = true)
-    private final Set<OptionalAnswer> optionalAnswerSet = new HashSet<OptionalAnswer>();
+    @OneToMany(mappedBy = "idQuestion",
+            cascade = {CascadeType.PERSIST, CascadeType.MERGE},
+            fetch = FetchType.LAZY, orphanRemoval = true)
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private Set<OptionalAnswer> optionalAnswerSet = new HashSet<OptionalAnswer>();
 
     public Question(Room idRoom, Integer type, String content, boolean questionDisplayed, boolean answersDisplayed) {
         this.idRoom = idRoom;
@@ -121,6 +138,11 @@ public class Question {
         return optionalAnswerSet;
     }
 
+    public void removeAllOptionalAnswerSet() {
+        Set<OptionalAnswer> set2 = this.optionalAnswerSet;
+        this.optionalAnswerSet.removeAll(set2);
+    }
+
     public void addOptionalAnswer(OptionalAnswer optionalAnswer)
     {
         if (!this.optionalAnswerSet.contains(optionalAnswer))
@@ -135,12 +157,17 @@ public class Question {
         if (this.optionalAnswerSet.contains(optionalAnswer))
         {
             this.optionalAnswerSet.remove(optionalAnswer);
-            optionalAnswer.setIdQuestion(this);
+            optionalAnswer.setIdQuestion(null);
         }
     }
 
     public Set<AnsweredQuestion> getAnsweredQuestionSet() {
         return answeredQuestionSet;
+    }
+
+    public void removeAllAnsweredQuestionSet() {
+        Set<AnsweredQuestion> set2 = this.answeredQuestionSet;
+        this.answeredQuestionSet.removeAll(set2);
     }
 
     public void addAnsweredQuestion(AnsweredQuestion answeredQuestion)
@@ -157,12 +184,17 @@ public class Question {
         if (this.answeredQuestionSet.contains(answeredQuestion))
         {
             this.answeredQuestionSet.remove(answeredQuestion);
-            answeredQuestion.setIdQuestion(this);
+            answeredQuestion.setIdQuestion(null);
         }
     }
 
     public Set<Answer> getAnswersSet() {
         return answersSet;
+    }
+
+    public void removeAllAnswersSet() {
+        Set<Answer> set2 = this.answersSet;
+        this.answersSet.removeAll(set2);
     }
 
     public void addAnswer(Answer answer)
@@ -179,7 +211,7 @@ public class Question {
         if (this.answersSet.contains(answer))
         {
             this.answersSet.remove(answer);
-            answer.setIdQuestion(this);
+            answer.setIdQuestion(null);
         }
     }
 }

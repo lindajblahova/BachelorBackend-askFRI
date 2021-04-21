@@ -1,7 +1,9 @@
 package sk.uniza.fri.askfri.model;
 
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
 import javax.persistence.*;
-import java.sql.Timestamp;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -14,21 +16,26 @@ public class Message {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "message_generator")
     @SequenceGenerator(name = "message_generator", sequenceName = "m_id_seq", allocationSize = 1)
+    @Column(nullable = false, updatable = false)
     private Long idMessage;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="room_id_room", referencedColumnName = "idRoom", nullable=false, updatable = false)
+    @JoinColumn(name="room_id_room", referencedColumnName = "idRoom", nullable=false)
     private Room idRoom;
 
     @Column(
             name = "content",
             updatable = false,
+            nullable = false,
             columnDefinition = "TEXT"
     )
     private String content;
 
-    @OneToMany(mappedBy = "idMessage", cascade = CascadeType.ALL, fetch = FetchType.LAZY , orphanRemoval = true)
-    private final Set<LikedMessage> likedMessageSet = new HashSet<LikedMessage>();
+    @OneToMany(mappedBy = "idMessage",
+            cascade = {CascadeType.PERSIST, CascadeType.MERGE},
+            fetch = FetchType.LAZY , orphanRemoval = true)
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private Set<LikedMessage> likedMessageSet = new HashSet<LikedMessage>();
 
     public Message(Room idRoom, String content) {
         this.idRoom = idRoom;
@@ -63,6 +70,11 @@ public class Message {
 
     public Set<LikedMessage> getLikedMessageSet() {
         return likedMessageSet;
+    }
+
+    public void removeAllLikedMessageSet() {
+        Set<LikedMessage> set2 = this.likedMessageSet;
+        this.likedMessageSet.removeAll(set2);
     }
 
     public void addLikedMessage(LikedMessage likedMessage)

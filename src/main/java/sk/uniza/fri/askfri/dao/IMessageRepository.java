@@ -1,15 +1,12 @@
 package sk.uniza.fri.askfri.dao;
 
-import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import sk.uniza.fri.askfri.model.Message;
 import sk.uniza.fri.askfri.model.Room;
-import sk.uniza.fri.askfri.model.dto.MessageDto;
 
-import java.util.List;
 import java.util.Set;
 
 @Repository
@@ -19,6 +16,14 @@ public interface IMessageRepository extends JpaRepository<Message, Long> {
     List<Message> findMessagesByIdRoom(Room room);*/
 
     Message findByIdMessage(Long idMessage);
+
+    @Modifying
+    @Query("DELETE FROM message m WHERE m.idRoom.idRoom=?1")
+    void deleteMessagesByIdRoom_IdRoom(Room room);
+
+    @Modifying
+    @Query("DELETE FROM message m WHERE m.idRoom.idRoom=?1")
+    void deleteAllByIdRoom_IdRoom(Long idRoom);
 
     /*@Modifying
     @Query("delete from message m where m.idRoom.idRoom=?1")

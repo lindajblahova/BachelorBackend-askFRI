@@ -1,6 +1,7 @@
 package sk.uniza.fri.askfri.model;
 
-import org.springframework.data.jpa.repository.Query;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
 import java.util.HashSet;
@@ -22,17 +23,20 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "user_generator")
     @SequenceGenerator(name = "user_generator", sequenceName = "u_id_seq", allocationSize = 1)
+    @Column(nullable = false, updatable = false)
     private Long idUser;
 
     @Column(
             name = "firstname",
             updatable = false,
+            nullable = false,
             columnDefinition = "TEXT"
     )
     private String firstname;
     @Column(
             name = "surname",
             updatable = false,
+            nullable = false,
             columnDefinition = "TEXT"
     )
     private String surname;
@@ -53,20 +57,30 @@ public class User {
     private String password;
     @Column(
             name = "role",
+            nullable = false,
             updatable = false,
             columnDefinition = "VARCHAR(10)"
 
     )
     private String role;
 
-    @OneToMany(mappedBy = "idOwner", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
-    private final Set<Room> roomSet = new HashSet<Room>();
+    @OneToMany(mappedBy = "idOwner",
+            cascade = {CascadeType.PERSIST, CascadeType.DETACH, CascadeType.MERGE, CascadeType.REFRESH},
+            fetch = FetchType.LAZY, orphanRemoval = true)
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private Set<Room> roomSet = new HashSet<Room>();
 
-    @OneToMany(mappedBy = "idUser", cascade = CascadeType.ALL, fetch = FetchType.LAZY , orphanRemoval = true)
-    private final Set<AnsweredQuestion> answeredQuestionSet = new HashSet<AnsweredQuestion>();
+    @OneToMany(mappedBy = "idUser",
+            cascade = {CascadeType.PERSIST, CascadeType.DETACH, CascadeType.MERGE, CascadeType.REFRESH},
+            fetch = FetchType.LAZY , orphanRemoval = true)
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private Set<AnsweredQuestion> answeredQuestionSet = new HashSet<AnsweredQuestion>();
 
-    @OneToMany(mappedBy = "idUser", cascade = CascadeType.ALL, fetch = FetchType.LAZY , orphanRemoval = true)
-    private final Set<LikedMessage> likedMessageSet = new HashSet<LikedMessage>();
+    @OneToMany(mappedBy = "idUser",
+            cascade = {CascadeType.PERSIST, CascadeType.DETACH, CascadeType.MERGE, CascadeType.REFRESH},
+            fetch = FetchType.LAZY , orphanRemoval = true)
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private Set<LikedMessage> likedMessageSet = new HashSet<LikedMessage>();
 
     public User(String firstname,
                 String surname, String email,
@@ -132,6 +146,10 @@ public class User {
         return answeredQuestionSet;
     }
 
+    public void setAnsweredQuestionSet(HashSet<AnsweredQuestion> set) {
+        this.answeredQuestionSet = set;
+    }
+
     public void addAnsweredQuestion(AnsweredQuestion answeredQuestion)
     {
         if (!this.answeredQuestionSet.contains(answeredQuestion))
@@ -154,6 +172,10 @@ public class User {
         return roomSet;
     }
 
+    public void setRoomSet(HashSet<Room> set) {
+        this.roomSet = set;
+    }
+
     public void addRoom(Room room)
     {
         if (!this.roomSet.contains(room))
@@ -174,6 +196,10 @@ public class User {
 
     public Set<LikedMessage> getLikedMessageSet() {
         return likedMessageSet;
+    }
+
+    public void setLikedMessageSet(HashSet<LikedMessage> set) {
+        this.likedMessageSet = set;
     }
 
     public void addLikedMessage(LikedMessage likedMessage)

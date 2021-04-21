@@ -1,44 +1,53 @@
 package sk.uniza.fri.askfri.service.implementation;
 
-
+import org.modelmapper.ModelMapper;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import sk.uniza.fri.askfri.dao.IAnsweredQuestionRepository;
-import sk.uniza.fri.askfri.dao.ILikedMessageRepository;
-import sk.uniza.fri.askfri.dao.IUserRepository;
-import sk.uniza.fri.askfri.model.AnsweredQuestion;
-import sk.uniza.fri.askfri.model.LikedMessage;
-import sk.uniza.fri.askfri.model.LikedMessageId;
-import sk.uniza.fri.askfri.model.User;
+import sk.uniza.fri.askfri.dao.*;
+import sk.uniza.fri.askfri.model.*;
+import sk.uniza.fri.askfri.model.dto.*;
+import sk.uniza.fri.askfri.model.dto.user.UserDto;
+import sk.uniza.fri.askfri.model.dto.user.UserPasswordDto;
+import sk.uniza.fri.askfri.model.dto.user.UserProfileDto;
 import sk.uniza.fri.askfri.service.IUserService;
 
-import javax.transaction.Transactional;
-import java.util.List;
+import javax.persistence.EntityExistsException;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImplement implements IUserService {
 
     private final IUserRepository userRepository;
-    private final IAnsweredQuestionRepository answeredQuestionRepository;
-    private final ILikedMessageRepository likedMessageRepository;
+    private final ModelMapper modelMapper;
+    private final PasswordEncoder passwordEncoder;
 
 
-    public UserServiceImplement(IUserRepository userRepository, IAnsweredQuestionRepository answeredQuestionRepository, ILikedMessageRepository likedMessageRepository) {
+    public UserServiceImplement(IUserRepository userRepository, ModelMapper modelMapper, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
-        this.answeredQuestionRepository = answeredQuestionRepository;
-        this.likedMessageRepository = likedMessageRepository;
+        this.modelMapper = modelMapper;
+        this.passwordEncoder = passwordEncoder;
     }
 
 
     @Override
     public User saveUser(User user) {
-        this.userRepository.save(user);
-        return user;
+        return this.userRepository.save(user);
     }
 
     @Override
-    public boolean existsByEmail(String email) {
-        return this.userRepository.existsByEmail(email);
+    public ResponseDto createUser(UserDto userDto) {
+        User newUser = modelMapper.map(userDto, User.class);
+        if (!newUser.getEmail().trim().equals("") && !newUser.getFirstname().trim().equals("") &&
+                !newUser.getSurname().trim().equals("") && !newUser.getPassword().trim().equals("") && newUser.getPassword().trim().length() >= 8 ) {
+            if (this.userRepository.existsByEmail(userDto.getEmail())) {
+                throw new EntityExistsException("Email je už registrovaný");
+            }
+            newUser.setPassword(this.passwordEncoder.encode(newUser.getPassword()));
+            newUser = this.userRepository.save(newUser);
+            return new ResponseDto(newUser.getIdUser(), "Pokračujte prihlásením");
+        }
+        throw new IllegalArgumentException("Používateľa nebolo možné zaregistrovať");
     }
 
     @Override
@@ -46,40 +55,52 @@ public class UserServiceImplement implements IUserService {
         User existingUser = this.userRepository.findByEmail(email);
         if (existingUser != null) {
             return existingUser;
-        } else {
-            //TODO: return exception
-            return existingUser;
         }
+        throw new NullPointerException("Používateľ nie je registrovaný");
     }
 
     @Override
-    public User getUserByIdUser(Long idUser) {
+    public UserProfileDto getUserProfileByIdUser(Long idUser) {
+        User user = this.userRepository.findByIdUser(idUser);
+        if (user != null)
+        {
+            return this.modelMapper.map(user, UserProfileDto.class);
+        }
+        throw new NullPointerException("Používateľ nebol nájdený!");
+    }
+
+    @Override
+    public User findUserByIdUser(Long idUser) {
         return this.userRepository.findByIdUser(idUser);
     }
 
     @Override
-    public Set<User> getAllUsers() {
-        return this.userRepository.findAllByOrderBySurnameAsc();
+    public ResponseDto updateUserPassword(UserPasswordDto userPasswordDto) {
+        User foundUser = this.userRepository.findByIdUser(userPasswordDto.getIdUser());
+        if (foundUser != null) {
+            if (this.passwordEncoder.matches(userPasswordDto.getOldPassword(),foundUser.getPassword())
+                    && userPasswordDto.getNewPassword().length() >= 8)
+            {
+                foundUser.setPassword(this.passwordEncoder.encode(userPasswordDto.getNewPassword()));
+                this.userRepository.save(foundUser);
+                return new ResponseDto(userPasswordDto.getIdUser(), "Heslo bolo zmenené");
+            }
+
+            throw new IllegalArgumentException("Zadané heslo nebolo správne");
+        }
+        throw new NullPointerException("Používateľ neexistuje");
     }
 
     @Override
-    public void deleteUser(long id) {
-            this.userRepository.deleteById(id);
+    public Set<UserProfileDto> getAllUsers() {
+        return this.userRepository.findAllByOrderBySurnameAsc()
+                .stream()
+                .map( user -> modelMapper.map(user, UserProfileDto.class))
+                .collect(Collectors.toSet());
     }
 
     @Override
-    public AnsweredQuestion saveAnsweredQuestion(AnsweredQuestion answeredQuestion) {
-        return this.answeredQuestionRepository.save(answeredQuestion);
+    public void deleteUser(Long id) {
+        this.userRepository.deleteById(id);
     }
-
-    @Override
-    public LikedMessage saveLikedMessage(LikedMessage likedMessage) {
-        return this.likedMessageRepository.save(likedMessage);
-    }
-
-    @Override
-    public void deleteLikedMessage(LikedMessageId likedMessage) {
-        this.likedMessageRepository.deleteById(likedMessage);
-    }
-
 }

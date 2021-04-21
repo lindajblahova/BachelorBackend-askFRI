@@ -1,5 +1,7 @@
 package sk.uniza.fri.askfri.model;
 
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
 import java.util.HashSet;
@@ -16,36 +18,46 @@ public class Room {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "room_generator")
     @SequenceGenerator(name = "room_generator", sequenceName = "r_id_seq", allocationSize = 1)
+    @Column(nullable = false, updatable = false)
     private Long idRoom;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="user_profile_id_user", referencedColumnName = "idUser", nullable=false, updatable = false)
+    @JoinColumn(name="user_profile_id_user", referencedColumnName = "idUser", nullable=false)
     private User idOwner;
 
     @Column(
             name = "room_name",
             updatable = false,
+            nullable = false,
             columnDefinition = "TEXT"
     )
     private String roomName;
 
     @Column(
             name = "room_passcode",
-            updatable = true,
+            updatable = false,
+            nullable = false,
             columnDefinition = "TEXT"
     )
     private String roomPasscode;
     @Column(
             name = "active",
-            updatable = true
+            updatable = true,
+            nullable = false
     )
     private boolean active;
 
-    @OneToMany(mappedBy = "idRoom", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
-    private final Set<Message> messagesSet = new HashSet<Message>();
+    @OneToMany(mappedBy = "idRoom",
+            cascade = {CascadeType.PERSIST, CascadeType.MERGE},
+            fetch = FetchType.LAZY, orphanRemoval = true)
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private Set<Message> messagesSet = new HashSet<Message>();
 
-    @OneToMany(mappedBy = "idRoom", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
-    private final Set<Question> questionSet = new HashSet<Question>();
+    @OneToMany(mappedBy = "idRoom",
+            cascade = {CascadeType.PERSIST, CascadeType.MERGE},
+            fetch = FetchType.LAZY, orphanRemoval = true)
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private Set<Question> questionSet = new HashSet<Question>();
 
     public Room() {}
 
@@ -100,6 +112,11 @@ public class Room {
         return messagesSet;
     }
 
+    public void removeAllMessagesSet() {
+        Set<Message> set2 = this.messagesSet;
+        this.messagesSet.removeAll(set2);
+    }
+
     public void addMessage(Message message)
     {
         if (!this.messagesSet.contains(message))
@@ -114,12 +131,17 @@ public class Room {
         if (this.messagesSet.contains(message))
         {
             this.messagesSet.remove(message);
-            message.setIdRoom(this);
+            message.setIdRoom(null);
         }
     }
 
     public Set<Question> getQuestionSet() {
         return questionSet;
+    }
+
+    public void removeAllQuestionSet() {
+        Set<Question> set2 = this.questionSet;
+        this.questionSet.removeAll(set2);
     }
 
     public void addQuestion(Question question)
@@ -136,7 +158,7 @@ public class Room {
         if (this.questionSet.contains(question))
         {
             this.questionSet.remove(question);
-            question.setIdRoom(this);
+            question.setIdRoom(null);
         }
     }
 }

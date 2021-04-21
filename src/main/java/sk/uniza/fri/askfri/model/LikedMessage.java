@@ -9,12 +9,12 @@ public class LikedMessage {
 
     @Id
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="user_profile_id_user", referencedColumnName = "idUser", nullable=false, updatable = false)
+    @JoinColumn(name="user_profile_id_user", referencedColumnName = "idUser", nullable=false)
     private User idUser;
 
     @Id
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="message_id_message",referencedColumnName = "idMessage", nullable=false, updatable = false)
+    @JoinColumn(name="message_id_message",referencedColumnName = "idMessage", nullable=false)
     private Message idMessage;
 
     public LikedMessage() {}

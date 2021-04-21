@@ -1,6 +1,5 @@
 package sk.uniza.fri.askfri.api;
 
-import org.modelmapper.ModelMapper;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -9,14 +8,10 @@ import sk.uniza.fri.askfri.model.Room;
 import sk.uniza.fri.askfri.model.User;
 import sk.uniza.fri.askfri.model.dto.ResponseDto;
 import sk.uniza.fri.askfri.model.dto.RoomDto;
-import sk.uniza.fri.askfri.service.IMessageService;
-import sk.uniza.fri.askfri.service.IQuestionService;
-import sk.uniza.fri.askfri.service.IRoomService;
-import sk.uniza.fri.askfri.service.IUserService;
+import sk.uniza.fri.askfri.service.*;
 
-import javax.persistence.EntityManager;
+import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @RestController
 @CrossOrigin(origins = "*")
@@ -24,117 +19,104 @@ import java.util.stream.Collectors;
 public class RoomController {
 
     private final IRoomService roomService;
-    private final IUserService userService;
+
+    private final ILikedMessageService likedMessageService;
+    private final IAnsweredQuestionService answeredQuestionService;
+    private final IAnswerService answerService;
     private final IQuestionService questionService;
     private final IMessageService messageService;
-    private final ModelMapper modelMapper;
+    private final IUserService userService;
 
-    public RoomController(IRoomService roomService, IUserService userService, IQuestionService questionService, IMessageService messageService, ModelMapper modelMapper) {
+    public RoomController(IRoomService roomService, ILikedMessageService likedMessageService,
+                          IAnsweredQuestionService answeredQuestionService, IAnswerService answerService,
+                          IQuestionService questionService, IMessageService messageService, IUserService userService) {
         this.roomService = roomService;
-        this.userService = userService;
+        this.likedMessageService = likedMessageService;
+        this.answeredQuestionService = answeredQuestionService;
+        this.answerService = answerService;
         this.questionService = questionService;
         this.messageService = messageService;
-        this.modelMapper = modelMapper;
-    }
-
-    @GetMapping("/get")
-    public ResponseEntity<Set<RoomDto>> getAllRooms() {
-        return new ResponseEntity<Set<RoomDto>>(this.roomService.findAllRooms()
-                .stream()
-                .map( room -> modelMapper.map(room, RoomDto.class))
-                .collect(Collectors.toSet()), HttpStatus.OK);
+        this.userService = userService;
     }
 
     @GetMapping("/get/room/{id}")
     public ResponseEntity<RoomDto> getRoom(@PathVariable("id") long id) {
-        Room room = this.roomService.findByIdRoom(id);
-        if (room != null)
+        try {
+            RoomDto room = this.roomService.findRoomDtoByIdRoom(id);
+            return new ResponseEntity<RoomDto>(room, HttpStatus.OK);
+        } catch (NullPointerException e)
         {
-            return new ResponseEntity<RoomDto>(this.modelMapper.map(room, RoomDto.class), HttpStatus.OK);
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         }
-        return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+
     }
 
     @GetMapping("/get/user/{id}")
     public ResponseEntity<Set<RoomDto>> getAllUserRooms(@PathVariable("id") Long idUser) {
-        User roomOwner = this.userService.getUserByIdUser(idUser);
-        if (roomOwner != null)
+        try {
+            return new ResponseEntity<Set<RoomDto>>(this.roomService.findUserRooms(idUser), HttpStatus.OK);
+        } catch (NullPointerException e)
         {
-            return new ResponseEntity<Set<RoomDto>>(roomOwner.getRoomSet()
-                    .stream()
-                    .map(room -> modelMapper.map(room, RoomDto.class))
-                    .collect(Collectors.toSet()), HttpStatus.OK);
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         }
-        return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
     }
 
     @PostMapping(value = "/add")
     public ResponseEntity<ResponseDto> createRoom(@RequestBody RoomDto roomDto) {
-        Room newRoom = modelMapper.map(roomDto, Room.class);
-        User roomOwner = this.userService.getUserByIdUser(roomDto.getIdOwner());
-        if (this.roomService.existsRoomByPasscodeAndActive(roomDto.getRoomPasscode())) {
-            return new ResponseEntity<>(null,HttpStatus.NOT_ACCEPTABLE);
-        }
-        if (roomOwner != null && !roomDto.getRoomPasscode().equals("") &&
-            !roomDto.getRoomName().equals(""))
+        try {
+            if (this.roomService.existsRoomByPasscodeAndActive(roomDto.getRoomPasscode())) {
+                return new ResponseEntity<>(null, HttpStatus.NOT_ACCEPTABLE);// TODO over status kód angular
+            }
+            ResponseDto responseDto = this.roomService.createRoom(roomDto);
+            return new ResponseEntity<ResponseDto>(responseDto, HttpStatus.OK);
+        } catch (NullPointerException e)
         {
-            roomOwner.addRoom(newRoom);
-            this.userService.saveUser(roomOwner);
-            return new ResponseEntity<ResponseDto>(new ResponseDto(newRoom.getIdRoom(),
-                    "Miestnosť " + newRoom.getRoomName() +  " bola vytvorená"),HttpStatus.OK);
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         }
-        return new ResponseEntity<>(null,HttpStatus.BAD_REQUEST);
+
     }
 
     @GetMapping(value = "/get/passcode/{passcode}")
     public boolean isPasscodeCurrentlyUsed(@PathVariable("passcode") String passcode) {
-        Room foundRoom = this.roomService.findRoomByPasscodeAndActive(passcode);
-        return foundRoom != null;
+       return this.roomService.existsRoomByPasscodeAndActive(passcode);
     }
 
     @GetMapping(value = "/get/room-passcode/{passcode}")
     public ResponseEntity<RoomDto> getActiveRoomByPasscode(@PathVariable("passcode") String passcode) {
-        Room foundRoom = this.roomService.findRoomByPasscodeAndActive(passcode);
-        if (foundRoom != null)
+        try {
+            RoomDto roomDto = this.roomService.findRoomByPasscodeAndActive(passcode);
+            return new ResponseEntity<>(roomDto, HttpStatus.OK);
+        } catch (NullPointerException e)
         {
-            return new ResponseEntity<>(this.modelMapper.map(foundRoom, RoomDto.class),HttpStatus.OK);
+            return new ResponseEntity<>(null,HttpStatus.NOT_FOUND);
         }
-        return new ResponseEntity<>(null,HttpStatus.NOT_FOUND);
     }
 
     @PutMapping(value = "/update/passcode")
     public ResponseEntity<ResponseDto> updateRoomPasscode(@RequestBody RoomDto roomDto) {
-        Room foundRoom = this.roomService.findByIdRoom(roomDto.getIdRoom());
-        if (foundRoom != null  && !roomDto.getRoomPasscode().equals("")) {
-            foundRoom.setRoomPasscode(roomDto.getRoomPasscode());
-            foundRoom.setActive(true);
-            foundRoom = this.roomService.saveRoom(foundRoom);
-            return new ResponseEntity<>(new ResponseDto(roomDto.getIdRoom(),
-                    "Nový kód je " + foundRoom.getRoomPasscode()),HttpStatus.OK);
+        try {
+            ResponseDto responseDto = this.roomService.updateRoomPasscode(roomDto);
+            return new ResponseEntity<>(responseDto,HttpStatus.OK);
+        } catch (IllegalArgumentException e ) {
+            return new ResponseEntity<>(null,HttpStatus.NOT_ACCEPTABLE);
         }
-        return new ResponseEntity<>(null,HttpStatus.NOT_ACCEPTABLE);
     }
 
     @PutMapping(value = "/update/activity")
-    public ResponseEntity<ResponseDto> updateRoomActivity(@RequestBody long idRoom) {
-        Room foundRoom = this.roomService.findByIdRoom(idRoom);
-        if (foundRoom.getIdRoom() != null) {
-            foundRoom.setActive(!foundRoom.isActive());
-            foundRoom = this.roomService.saveRoom(foundRoom);
-            return new ResponseEntity<>(new ResponseDto(idRoom,
-                    foundRoom.isActive() ? "Miestnosť je aktívna" : "Miestnosť je neaktívna"),HttpStatus.OK);
+    public ResponseEntity<ResponseDto> updateRoomActivity(@RequestBody Long idRoom) {
+        try {
+            ResponseDto responseDto = this.roomService.updateRoomActivity(idRoom);
+            return new ResponseEntity<>(responseDto,HttpStatus.OK);
+        } catch (NullPointerException e ) {
+            return new ResponseEntity<>(null,HttpStatus.NOT_ACCEPTABLE);
         }
-        return new ResponseEntity<>(null,HttpStatus.NOT_ACCEPTABLE);
     }
 
     @DeleteMapping(value = "/delete/{id}")
-    public ResponseEntity<ResponseDto> deleteRoom(@PathVariable("id") long idRoom) {
+    public ResponseEntity<ResponseDto> deleteRoom(@PathVariable("id") Long idRoom) {
         try {
-            Room foundRoom = this.roomService.findByIdRoom(idRoom);
-            User owner = foundRoom.getIdOwner();
-            owner.removeRoom(foundRoom);
-            this.userService.saveUser(owner);
-            return new ResponseEntity<>(new ResponseDto(idRoom, "Miestnosť bola vymazaná"),HttpStatus.OK);
+            ResponseDto responseDto = this.roomService.deleteRoom(idRoom);
+            return new ResponseEntity<>(responseDto,HttpStatus.OK);
         } catch (EmptyResultDataAccessException e)
         {
             return new ResponseEntity<>(null,HttpStatus.NOT_FOUND);

@@ -1,10 +1,12 @@
 package sk.uniza.fri.askfri.service;
 
-import sk.uniza.fri.askfri.model.Answer;
-import sk.uniza.fri.askfri.model.Question;
+import sk.uniza.fri.askfri.model.dto.AnswerDto;
+import sk.uniza.fri.askfri.model.dto.ResponseDto;
 
-import java.util.List;
+import java.util.Set;
 
 public interface IAnswerService {
-    Answer saveAnswer(Answer answer);
+    ResponseDto createAnswer(AnswerDto[] answerDto);
+    Set<AnswerDto> getAllQuestionAnswers(Long  idQuestion);
+
 }

@@ -7,6 +7,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -16,9 +17,13 @@ import sk.uniza.fri.askfri.security.jwt.JwtAuthTokenFilter;
 import sk.uniza.fri.askfri.security.jwt.UnAuthFilter;
 import sk.uniza.fri.askfri.service.implementation.UserDetailServiceImplement;
 
+/**
+ * Celé vytvorenie a konfigurácia bezpečnosti bola vytvorená podľa návodu
+ * https://bezkoder.com/spring-boot-jwt-mysql-spring-security-architecture/
+ */
 @Configuration
+@EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
-
 
     @Autowired
     private UserDetailServiceImplement detailsServiceimpl;
@@ -46,6 +51,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers(HttpMethod.POST,"/api/login").permitAll()
                 .antMatchers(HttpMethod.POST,"/api/register").permitAll()
+                .antMatchers(HttpMethod.GET, "/api/admin/**").hasAuthority("ROLE_Admin")
+                .antMatchers(HttpMethod.POST, "/api/rooms/add").hasAuthority("ROLE_Vyucujuci")
                 .anyRequest() //all other requests need to be authenticated
                 .authenticated().and().exceptionHandling()
                 .authenticationEntryPoint(unauthorizedHandler).and().sessionManagement()

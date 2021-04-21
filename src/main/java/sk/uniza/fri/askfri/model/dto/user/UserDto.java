@@ -1,4 +1,4 @@
-package sk.uniza.fri.askfri.model.dto;
+package sk.uniza.fri.askfri.model.dto.user;
 
 import javax.persistence.Column;
 import javax.persistence.GeneratedValue;
@@ -7,7 +7,7 @@ import javax.persistence.Id;
 
 public class UserDto {
 
-    private long idUser;
+    private Long idUser;
     private String firstname;
     private String surname;
     private String email;

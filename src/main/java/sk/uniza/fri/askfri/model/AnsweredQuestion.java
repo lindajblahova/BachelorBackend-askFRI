@@ -9,12 +9,12 @@ public class AnsweredQuestion {
 
     @Id
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="user_profile_id_user", referencedColumnName = "idUser", nullable=false, updatable = false)
+    @JoinColumn(name="user_profile_id_user", referencedColumnName = "idUser", nullable=false)
     private User idUser;
 
     @Id
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="question_id_question", referencedColumnName = "idQuestion", nullable=false, updatable = false)
+    @JoinColumn(name="question_id_question", referencedColumnName = "idQuestion", nullable=false)
     private Question idQuestion;
 
     public AnsweredQuestion() {

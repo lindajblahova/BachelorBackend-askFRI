@@ -9,15 +9,17 @@ public class OptionalAnswer {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "opt_ans_generator")
     @SequenceGenerator(name = "opt_ans_generator", sequenceName = "oa_id_seq", allocationSize = 1)
+    @Column(nullable = false, updatable = false)
     private Long idOptionalAnswer;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="question_id_question", referencedColumnName = "idQuestion", nullable=false, updatable = false)
+    @JoinColumn(name="question_id_question", referencedColumnName = "idQuestion", nullable=false)
     private Question idQuestion;
 
     @Column(
             name = "content",
             updatable = false,
+            nullable = false,
             columnDefinition = "TEXT"
     )
     private String content;

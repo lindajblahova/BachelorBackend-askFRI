@@ -1,4 +1,4 @@
-package sk.uniza.fri.askfri.model.dto;
+package sk.uniza.fri.askfri.model.dto.user;
 
 public class UserPasswordDto {
     private long idUser;

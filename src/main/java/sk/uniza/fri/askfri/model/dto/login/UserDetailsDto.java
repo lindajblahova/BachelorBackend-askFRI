@@ -1,4 +1,4 @@
-package sk.uniza.fri.askfri.model.dto;
+package sk.uniza.fri.askfri.model.dto.login;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;

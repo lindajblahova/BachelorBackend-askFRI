@@ -1,4 +1,4 @@
-package sk.uniza.fri.askfri.model.dto;
+package sk.uniza.fri.askfri.model.dto.login;
 
 public class LoginResponse {
 
