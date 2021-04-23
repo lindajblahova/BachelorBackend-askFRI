@@ -1,5 +1,11 @@
 package sk.uniza.fri.askfri.model.dto;
 
+/** Trieda DTO udajov pre moznost otazky
+ * obsahuje ID moznosti, ID otazky a jej obsah
+ * @author Linda Blahova
+ * @version 1.0
+ * @since   2021-04-21
+ */
 public class OptionalAnswerDto {
 
     private Long idOptionalAnswer;

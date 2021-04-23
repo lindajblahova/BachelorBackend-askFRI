@@ -7,10 +7,18 @@ import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
 
+/** Trieda mapovana na tabulku message databazy, sluzi pre zaznamenanie sprav
+ *  pre miestnost
+ *  obsahuje ID spravy, rodicovsku miestnost a obsah spravy
+ *  ID je primarnym klucom, ktory je generovany sekvenciou m_id_seq
+ *  Message je vo vztahu ManyToOne k rodicovskej miestnosti, referencuje ID miestnosti
+ *  Message je vo vztahu OneToMany k LikedMessage ako rodicovska sprava
+ * @author Linda Blahova
+ * @version 1.0
+ * @since   2021-04-21
+ */
 @Entity(name = "message")
 @Table(name = "message")
-@NamedEntityGraph(name = "messageLikes",
-        attributeNodes = @NamedAttributeNode("likedMessageSet"))
 public class Message {
 
     @Id
@@ -35,7 +43,7 @@ public class Message {
             cascade = {CascadeType.PERSIST, CascadeType.MERGE},
             fetch = FetchType.LAZY , orphanRemoval = true)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private Set<LikedMessage> likedMessageSet = new HashSet<LikedMessage>();
+    private final Set<LikedMessage> likedMessageSet = new HashSet<LikedMessage>();
 
     public Message(Room idRoom, String content) {
         this.idRoom = idRoom;
@@ -70,11 +78,6 @@ public class Message {
 
     public Set<LikedMessage> getLikedMessageSet() {
         return likedMessageSet;
-    }
-
-    public void removeAllLikedMessageSet() {
-        Set<LikedMessage> set2 = this.likedMessageSet;
-        this.likedMessageSet.removeAll(set2);
     }
 
     public void addLikedMessage(LikedMessage likedMessage)

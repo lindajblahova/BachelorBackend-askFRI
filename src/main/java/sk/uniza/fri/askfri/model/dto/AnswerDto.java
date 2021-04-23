@@ -1,5 +1,11 @@
 package sk.uniza.fri.askfri.model.dto;
 
+/** Trieda DTO udajov pre odpoved na otazku
+ * obsahuje ID odpovede, ID otazky a obsah odpovede
+ * @author Linda Blahova
+ * @version 1.0
+ * @since   2021-04-21
+ */
 public class AnswerDto {
 
     private Long idAnswer;

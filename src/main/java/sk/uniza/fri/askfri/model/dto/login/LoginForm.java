@@ -1,5 +1,11 @@
 package sk.uniza.fri.askfri.model.dto.login;
 
+/** Trieda DTO udajov pre login pouzivatela
+ * obsahuje email a heslo
+ * @author Linda Blahova
+ * @version 1.0
+ * @since   2021-04-21
+ */
 public class LoginForm {
 
     private String email;

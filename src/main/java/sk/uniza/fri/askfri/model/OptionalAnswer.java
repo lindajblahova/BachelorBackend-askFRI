@@ -2,6 +2,15 @@ package sk.uniza.fri.askfri.model;
 
 import javax.persistence.*;
 
+/** Trieda mapovana na tabulku optional_answer databazy, sluzi pre zaznamenanie moznosti
+ *  odpovede pre otazku
+ *  obsahuje ID moznosti, rodicovsku otazku a obsah moznosti
+ *  ID je primarnym klucom, ktory je generovany sekvenciou oa_id_seq
+ *  OptionalAnswer je vo vztahu ManyToOne k rodicovskej otazke, referencuje ID otazky
+ * @author Linda Blahova
+ * @version 1.0
+ * @since   2021-04-21
+ */
 @Entity(name = "optionalAnswer")
 @Table(name = "optional_answer")
 public class OptionalAnswer {

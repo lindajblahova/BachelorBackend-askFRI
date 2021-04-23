@@ -1,10 +1,5 @@
 package sk.uniza.fri.askfri.model.dto.user;
 
-import javax.persistence.Column;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-
 public class UserDto {
 
     private Long idUser;

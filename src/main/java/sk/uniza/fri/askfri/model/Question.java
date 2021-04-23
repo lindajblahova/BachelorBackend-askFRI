@@ -1,6 +1,5 @@
 package sk.uniza.fri.askfri.model;
 
-
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
@@ -8,14 +7,20 @@ import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
 
+/** Trieda mapovana na tabulku question databazy, sluzi pre zaznamenanie otazok
+ *  pre miestnost
+ *  obsahuje ID otazky, rodicovsku miestnost a obsah otazky
+ *  ID je primarnym klucom, ktory je generovany sekvenciou q_id_seq
+ *  Question je vo vztahu ManyToOne k rodicovskej miestnosti, referencuje ID miestnosti
+ *  Question je vo vztahu OneToMany k OptionalAnswer ako rodicovska otazka
+ *  Question je vo vztahu OneToMany k Answer ako rodicovska otazka
+ *  Question je vo vztahu OneToMany k AnsweredQuestion ako rodicovska otazka
+ * @author Linda Blahova
+ * @version 1.0
+ * @since   2021-04-21
+ */
 @Entity(name = "question")
 @Table(name = "question")
-@NamedEntityGraph(name = "questionAnswers",
-        attributeNodes = @NamedAttributeNode("answersSet"))
-@NamedEntityGraph(name = "questionOptionalAnswers",
-        attributeNodes = @NamedAttributeNode("optionalAnswerSet"))
-@NamedEntityGraph(name = "answeredQuestionSet",
-        attributeNodes = @NamedAttributeNode("answeredQuestionSet"))
 public class Question {
 
     @Id
@@ -62,19 +67,19 @@ public class Question {
             cascade = {CascadeType.PERSIST, CascadeType.MERGE},
             fetch = FetchType.LAZY, orphanRemoval = true)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private Set<Answer> answersSet = new HashSet<Answer>();
+    private final Set<Answer> answersSet = new HashSet<Answer>();
 
     @OneToMany(mappedBy = "idQuestion",
             cascade = {CascadeType.PERSIST, CascadeType.MERGE},
             fetch = FetchType.LAZY, orphanRemoval = true)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private Set<AnsweredQuestion> answeredQuestionSet = new HashSet<AnsweredQuestion>();
+    private final Set<AnsweredQuestion> answeredQuestionSet = new HashSet<AnsweredQuestion>();
 
     @OneToMany(mappedBy = "idQuestion",
             cascade = {CascadeType.PERSIST, CascadeType.MERGE},
             fetch = FetchType.LAZY, orphanRemoval = true)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private Set<OptionalAnswer> optionalAnswerSet = new HashSet<OptionalAnswer>();
+    private final Set<OptionalAnswer> optionalAnswerSet = new HashSet<OptionalAnswer>();
 
     public Question(Room idRoom, Integer type, String content, boolean questionDisplayed, boolean answersDisplayed) {
         this.idRoom = idRoom;
@@ -138,11 +143,6 @@ public class Question {
         return optionalAnswerSet;
     }
 
-    public void removeAllOptionalAnswerSet() {
-        Set<OptionalAnswer> set2 = this.optionalAnswerSet;
-        this.optionalAnswerSet.removeAll(set2);
-    }
-
     public void addOptionalAnswer(OptionalAnswer optionalAnswer)
     {
         if (!this.optionalAnswerSet.contains(optionalAnswer))
@@ -165,11 +165,6 @@ public class Question {
         return answeredQuestionSet;
     }
 
-    public void removeAllAnsweredQuestionSet() {
-        Set<AnsweredQuestion> set2 = this.answeredQuestionSet;
-        this.answeredQuestionSet.removeAll(set2);
-    }
-
     public void addAnsweredQuestion(AnsweredQuestion answeredQuestion)
     {
         if (!this.answeredQuestionSet.contains(answeredQuestion))
@@ -190,11 +185,6 @@ public class Question {
 
     public Set<Answer> getAnswersSet() {
         return answersSet;
-    }
-
-    public void removeAllAnswersSet() {
-        Set<Answer> set2 = this.answersSet;
-        this.answersSet.removeAll(set2);
     }
 
     public void addAnswer(Answer answer)

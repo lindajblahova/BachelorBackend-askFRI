@@ -1,5 +1,11 @@
 package sk.uniza.fri.askfri.model.dto;
 
+/** Trieda DTO udajov pre spravu v miestnosti
+ * obsahuje ID spravy, ID miestnosti a obsah spravy
+ * @author Linda Blahova
+ * @version 1.0
+ * @since   2021-04-21
+ */
 public class MessageDto {
 
     private Long idMessage;

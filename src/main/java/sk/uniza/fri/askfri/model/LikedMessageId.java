@@ -3,6 +3,13 @@ package sk.uniza.fri.askfri.model;
 import java.io.Serializable;
 import java.util.Objects;
 
+/** Trieda reprezentujuca ID pre LikedMessage
+ *  implementuje Serializable
+ *  obsahuje ID rodicovskeho pouzivatela a ID rodicovskej spravy
+ * @author Linda Blahova
+ * @version 1.0
+ * @since   2021-04-21
+ */
 public class LikedMessageId implements Serializable {
     private Long idUser;
     private Long idMessage;
@@ -13,20 +20,6 @@ public class LikedMessageId implements Serializable {
     }
 
     public LikedMessageId() {
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        LikedMessageId that = (LikedMessageId) o;
-        return Objects.equals(idUser, that.idUser) &&
-                Objects.equals(idMessage, that.idMessage);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(idUser, idMessage);
     }
 
     public Long getIdUser() {

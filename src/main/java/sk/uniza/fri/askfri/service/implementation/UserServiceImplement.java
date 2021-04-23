@@ -15,6 +15,12 @@ import javax.persistence.EntityExistsException;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/** Sluzba pracujuca s User
+ * implementuje IMessageService
+ * @author Linda Blahova
+ * @version 1.0
+ * @since   2021-04-21
+ */
 @Service
 public class UserServiceImplement implements IUserService {
 
@@ -29,19 +35,32 @@ public class UserServiceImplement implements IUserService {
         this.passwordEncoder = passwordEncoder;
     }
 
-
-    @Override
-    public User saveUser(User user) {
-        return this.userRepository.save(user);
-    }
-
+    /** Premapuje prijate udaje na User-a a pokial su v poriadku a dany email
+     *  este nie je registrovany zakoduje heslo pouzivatela a ulozi ho.
+     *  Vrati odpoved o vytvoreni
+     * @param userDto DTO pouzivatel
+     * @return ResponseDto odpoved o vytvoreni pouzivatela
+     * @throws IllegalArgumentException ak boli zle zadane udaje
+     * @throws EntityExistsException ak je zadany email uz registrovany
+     */
     @Override
     public ResponseDto createUser(UserDto userDto) {
         User newUser = modelMapper.map(userDto, User.class);
         if (!newUser.getEmail().trim().equals("") && !newUser.getFirstname().trim().equals("") &&
-                !newUser.getSurname().trim().equals("") && !newUser.getPassword().trim().equals("") && newUser.getPassword().trim().length() >= 8 ) {
+                !newUser.getSurname().trim().equals("") && !newUser.getPassword().trim().equals("") ) {
             if (this.userRepository.existsByEmail(userDto.getEmail())) {
                 throw new EntityExistsException("Email je už registrovaný");
+            }
+            if (newUser.getEmail().contains("@fri.uniza.sk") ||
+                    newUser.getEmail().contains("@fstroj.uniza.sk") ||
+                    newUser.getEmail().contains("@fpedas.uniza.sk") ||
+                    newUser.getEmail().contains("@fhv.uniza.sk") ||
+                    newUser.getEmail().contains("@fbi.uniza.sk") ||
+                    newUser.getEmail().contains("@svf.uniza.sk") ||
+                    newUser.getEmail().contains("@feit.uniza.sk")) {
+                newUser.setRole("Vyucujuci");
+            } else {
+                newUser.setRole("Student");
             }
             newUser.setPassword(this.passwordEncoder.encode(newUser.getPassword()));
             newUser = this.userRepository.save(newUser);
@@ -50,6 +69,21 @@ public class UserServiceImplement implements IUserService {
         throw new IllegalArgumentException("Používateľa nebolo možné zaregistrovať");
     }
 
+    /** Metoda pre ulozenie pouzivatela
+     * @param user pouzivatel
+     * @return User ulozeny pouzivatel
+     */
+    @Override
+    public User saveUser(User user) {
+        return this.userRepository.save(user);
+    }
+
+    /** Pokusi sa najst pouzivatela pomocou emailu. Vrati najdeneho
+     * pouzivatela ak nie je null
+     * @param email hladany email
+     * @return User najdeny pouzivatel
+     * @throws NullPointerException ak pouzivatel s danym emailom neexistuje
+     */
     @Override
     public User getUserByEmail(String email) {
         User existingUser = this.userRepository.findByEmail(email);
@@ -59,6 +93,22 @@ public class UserServiceImplement implements IUserService {
         throw new NullPointerException("Používateľ nie je registrovaný");
     }
 
+    /** Metoda pre najdenie pouzivatela podla jeho ID
+     * @param idUser ID pouzivatela
+     * @return User najdeny pouzivatel
+     */
+    @Override
+    public User findUserByIdUser(Long idUser) {
+        return this.userRepository.findByIdUser(idUser);
+    }
+
+
+    /** Pokusi sa najst pouzivatela podla ID, premapuje ho na UserProfileDto a vrati,
+     * ak nie je null
+     * @param idUser ID pouzivatela
+     * @return UserProfileDto profilove udaje najdeneho pouzivatela
+     * @throws NullPointerException ak nebol najdeny pouzivatel
+     */
     @Override
     public UserProfileDto getUserProfileByIdUser(Long idUser) {
         User user = this.userRepository.findByIdUser(idUser);
@@ -69,17 +119,20 @@ public class UserServiceImplement implements IUserService {
         throw new NullPointerException("Používateľ nebol nájdený!");
     }
 
-    @Override
-    public User findUserByIdUser(Long idUser) {
-        return this.userRepository.findByIdUser(idUser);
-    }
-
+    /** Pokusi sa najst pouzivatela a nasledne overi ci zadane aktualne heslo sedi s
+     *  ulozenym heslom a tiez ci nove heslo nie je prazdne. Nasledne pouzivatelovi
+     *  nastavi nove heslo ktore zakoduje a ulozi pouzivatela
+     * @param userPasswordDto DTO pre zmenu hesla (UserPasswordDto)
+     * @return ResponseDto odpoved o zmene hesla pouzivatela
+     * @throws IllegalArgumentException ak zadane heslo nebolo spravne
+     * @throws NullPointerException ak pouzivatel nebol najdeny
+     */
     @Override
     public ResponseDto updateUserPassword(UserPasswordDto userPasswordDto) {
         User foundUser = this.userRepository.findByIdUser(userPasswordDto.getIdUser());
         if (foundUser != null) {
             if (this.passwordEncoder.matches(userPasswordDto.getOldPassword(),foundUser.getPassword())
-                    && userPasswordDto.getNewPassword().length() >= 8)
+                    && !userPasswordDto.getNewPassword().trim().equals(""))
             {
                 foundUser.setPassword(this.passwordEncoder.encode(userPasswordDto.getNewPassword()));
                 this.userRepository.save(foundUser);
@@ -91,6 +144,9 @@ public class UserServiceImplement implements IUserService {
         throw new NullPointerException("Používateľ neexistuje");
     }
 
+    /** Najde vsetkych pouzivatelov, premapuje ich na profilove udaje a vrati
+     * @return Set<UserProfileDto> set profilovych udajov vsetkych pouzivatelov
+     */
     @Override
     public Set<UserProfileDto> getAllUsers() {
         return this.userRepository.findAllByOrderBySurnameAsc()
@@ -99,8 +155,13 @@ public class UserServiceImplement implements IUserService {
                 .collect(Collectors.toSet());
     }
 
+    /** Metoda pre zmazanie pouzivatela
+     * @param idUser ID pouzivatela
+     * @return ResponseDto odpoved o zmazani pouzivatela
+     */
     @Override
-    public void deleteUser(Long id) {
-        this.userRepository.deleteById(id);
+    public ResponseDto deleteUser(Long idUser) {
+        this.userRepository.deleteById(idUser);
+        return new ResponseDto(idUser,"Používateľ bol vymazaný");
     }
 }

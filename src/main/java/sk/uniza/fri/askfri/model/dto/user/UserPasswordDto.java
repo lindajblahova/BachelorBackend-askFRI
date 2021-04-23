@@ -1,15 +1,15 @@
 package sk.uniza.fri.askfri.model.dto.user;
 
 public class UserPasswordDto {
-    private long idUser;
+    private Long idUser;
     private String oldPassword;
     private String newPassword;
 
-    public long getIdUser() {
+    public Long getIdUser() {
         return idUser;
     }
 
-    public void setIdUser(long idUser) {
+    public void setIdUser(Long idUser) {
         this.idUser = idUser;
     }
 

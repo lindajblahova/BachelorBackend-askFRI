@@ -1,5 +1,11 @@
 package sk.uniza.fri.askfri.model.dto.login;
 
+/** Trieda DTO udajov pre odpoved na login pouzivatela
+ * obsahuje vygenerovany token, ID prihlaseneho pouzivatela a jeho rolu
+ * @author Linda Blahova
+ * @version 1.0
+ * @since   2021-04-21
+ */
 public class LoginResponse {
 
     private String token;

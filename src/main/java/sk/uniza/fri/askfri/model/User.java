@@ -7,6 +7,15 @@ import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
 
+/** Trieda mapovana na tabulku user_profile databazy, sluzi pre zaznamenanie pouzivatelov
+ *  obsahuje ID pouzivatela, krstne meno a priezvisko pouzivatela, unikatny email
+ *  pouzivatela, heslo pouzivatela a jeho rolu
+ *  ID je primarnym klucom, ktory je generovany sekvenciou u_id_seq
+ *  User je vo vztahu OneToMany k Room ako rodicovsky vlastnik miestnosti
+ * @author Linda Blahova
+ * @version 1.0
+ * @since   2021-04-21
+ */
 @Entity(name = "user_profile")
 @Table(
         name = "user_profile",
@@ -14,10 +23,6 @@ import java.util.Set;
                 @UniqueConstraint(name = "user_email_unique", columnNames = "email")
         }
         )
-@NamedEntityGraph(name = "userRooms",
-        attributeNodes = @NamedAttributeNode("roomSet"))
-@NamedEntityGraph(name = "userAnsweredQuestions",
-        attributeNodes = @NamedAttributeNode("answeredQuestionSet"))
 public class User {
 
     @Id
@@ -65,22 +70,22 @@ public class User {
     private String role;
 
     @OneToMany(mappedBy = "idOwner",
-            cascade = {CascadeType.PERSIST, CascadeType.DETACH, CascadeType.MERGE, CascadeType.REFRESH},
+            cascade = {CascadeType.PERSIST, CascadeType.MERGE},
             fetch = FetchType.LAZY, orphanRemoval = true)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private Set<Room> roomSet = new HashSet<Room>();
+    private final Set<Room> roomSet = new HashSet<Room>();
 
     @OneToMany(mappedBy = "idUser",
-            cascade = {CascadeType.PERSIST, CascadeType.DETACH, CascadeType.MERGE, CascadeType.REFRESH},
+            cascade = {CascadeType.PERSIST, CascadeType.MERGE},
             fetch = FetchType.LAZY , orphanRemoval = true)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private Set<AnsweredQuestion> answeredQuestionSet = new HashSet<AnsweredQuestion>();
+    private final Set<AnsweredQuestion> answeredQuestionSet = new HashSet<AnsweredQuestion>();
 
     @OneToMany(mappedBy = "idUser",
-            cascade = {CascadeType.PERSIST, CascadeType.DETACH, CascadeType.MERGE, CascadeType.REFRESH},
+            cascade = {CascadeType.PERSIST, CascadeType.MERGE},
             fetch = FetchType.LAZY , orphanRemoval = true)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private Set<LikedMessage> likedMessageSet = new HashSet<LikedMessage>();
+    private final Set<LikedMessage> likedMessageSet = new HashSet<LikedMessage>();
 
     public User(String firstname,
                 String surname, String email,
@@ -146,10 +151,6 @@ public class User {
         return answeredQuestionSet;
     }
 
-    public void setAnsweredQuestionSet(HashSet<AnsweredQuestion> set) {
-        this.answeredQuestionSet = set;
-    }
-
     public void addAnsweredQuestion(AnsweredQuestion answeredQuestion)
     {
         if (!this.answeredQuestionSet.contains(answeredQuestion))
@@ -172,10 +173,6 @@ public class User {
         return roomSet;
     }
 
-    public void setRoomSet(HashSet<Room> set) {
-        this.roomSet = set;
-    }
-
     public void addRoom(Room room)
     {
         if (!this.roomSet.contains(room))
@@ -196,10 +193,6 @@ public class User {
 
     public Set<LikedMessage> getLikedMessageSet() {
         return likedMessageSet;
-    }
-
-    public void setLikedMessageSet(HashSet<LikedMessage> set) {
-        this.likedMessageSet = set;
     }
 
     public void addLikedMessage(LikedMessage likedMessage)

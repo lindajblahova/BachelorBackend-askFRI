@@ -9,6 +9,13 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+/** Trieda obsahuje potrebne informacie na zostavenie autentifikacneho objektu
+ * implementuje UserDetails
+ * obsahuje pouzivatela a kolekciu jeho autorít
+ * @author Linda Blahova
+ * @version 1.0
+ * @since   2021-04-21
+ */
 public class UserDetailsDto implements UserDetails {
 
     private final User user;
@@ -38,6 +45,9 @@ public class UserDetailsDto implements UserDetails {
     public String getUsername() {
         return this.user.getEmail();
     }
+
+    public String getIdUser() {
+        return this.user.getIdUser().toString();}
 
     @Override
     public boolean isAccountNonExpired() {

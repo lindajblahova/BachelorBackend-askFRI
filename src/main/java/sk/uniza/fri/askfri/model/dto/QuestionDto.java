@@ -1,5 +1,12 @@
 package sk.uniza.fri.askfri.model.dto;
 
+/** Trieda DTO udajov pre otazku
+ * obsahuje ID otazky, ID miestnosti, typ otazky, obsah otazky, zobrazenie otazky ucastnikom
+ * a zobrazenie odpovedi ucastnikom
+ * @author Linda Blahova
+ * @version 1.0
+ * @since   2021-04-21
+ */
 public class QuestionDto {
 
     private Long idQuestion;

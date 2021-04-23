@@ -7,12 +7,20 @@ import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
 
+/** Trieda mapovana na tabulku room databazy, sluzi pre zaznamenanie miestnosti
+ *  vytvorenych pouzivatelom
+ *  obsahuje ID miestnosti, rodicovskeho pouzivatela, nazov miestnosti, pristupovy kod
+ *  a aktivitu miestnosti
+ *  ID je primarnym klucom, ktory je generovany sekvenciou r_id_seq
+ *  Room je vo vztahu ManyToOne k rodicovskemu pouzivatelovi, referencuje ID pouzivatela
+ *  Room je vo vztahu OneToMany k Question ako rodicovska miestnost
+ *  Room je vo vztahu OneToMany k Message ako rodicovska miestnost
+ * @author Linda Blahova
+ * @version 1.0
+ * @since   2021-04-21
+ */
 @Entity(name = "room")
 @Table(name = "room")
-@NamedEntityGraph(name = "roomMessages",
-        attributeNodes = @NamedAttributeNode("messagesSet"))
-@NamedEntityGraph(name = "roomQuestions",
-        attributeNodes = @NamedAttributeNode("questionSet"))
 public class Room {
 
     @Id
@@ -35,7 +43,6 @@ public class Room {
 
     @Column(
             name = "room_passcode",
-            updatable = false,
             nullable = false,
             columnDefinition = "TEXT"
     )
@@ -51,13 +58,13 @@ public class Room {
             cascade = {CascadeType.PERSIST, CascadeType.MERGE},
             fetch = FetchType.LAZY, orphanRemoval = true)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private Set<Message> messagesSet = new HashSet<Message>();
+    private final Set<Message> messagesSet = new HashSet<Message>();
 
     @OneToMany(mappedBy = "idRoom",
             cascade = {CascadeType.PERSIST, CascadeType.MERGE},
             fetch = FetchType.LAZY, orphanRemoval = true)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private Set<Question> questionSet = new HashSet<Question>();
+    private final Set<Question> questionSet = new HashSet<Question>();
 
     public Room() {}
 
@@ -112,11 +119,6 @@ public class Room {
         return messagesSet;
     }
 
-    public void removeAllMessagesSet() {
-        Set<Message> set2 = this.messagesSet;
-        this.messagesSet.removeAll(set2);
-    }
-
     public void addMessage(Message message)
     {
         if (!this.messagesSet.contains(message))
@@ -137,11 +139,6 @@ public class Room {
 
     public Set<Question> getQuestionSet() {
         return questionSet;
-    }
-
-    public void removeAllQuestionSet() {
-        Set<Question> set2 = this.questionSet;
-        this.questionSet.removeAll(set2);
     }
 
     public void addQuestion(Question question)

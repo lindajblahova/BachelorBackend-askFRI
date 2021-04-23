@@ -1,5 +1,12 @@
 package sk.uniza.fri.askfri.model.dto;
 
+/** Trieda DTO udajov pre miestnost
+ * obsahuje ID miestnosti, ID pouzivatela-vlastnika, nazov miestnosti, pristupovy kod
+ * a aktivitu miestnosti
+ * @author Linda Blahova
+ * @version 1.0
+ * @since   2021-04-21
+ */
 public class RoomDto {
 
     private Long idRoom;

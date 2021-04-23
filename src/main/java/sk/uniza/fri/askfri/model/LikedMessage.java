@@ -2,6 +2,17 @@ package sk.uniza.fri.askfri.model;
 
 import javax.persistence.*;
 
+/** Trieda mapovana na tabulku liked_message databazy, sluzi pre
+ *  zaznamenanie reakcie pouzivatela na spravu
+ *  obsahuje rodicovskeho pouzivatela a rodicovsku spravu
+ *  ID je trieda LikedMessageId - KPK
+ *  LikedMessage je vo vztahu ManyToOne k rodicovskej sprave, referencuje ID spravy
+ *  LikedMessage je vo vztahu ManyToOne k rodicovskemu pouzivatelovi, referencuje
+ *  ID pouzivatela
+ * @author Linda Blahova
+ * @version 1.0
+ * @since   2021-04-21
+ */
 @Entity(name = "LikedMessage")
 @Table(name = "liked_message")
 @IdClass(LikedMessageId.class)
@@ -24,16 +35,16 @@ public class LikedMessage {
         this.idMessage = idMessage;
     }
 
-    public User getIdUser() {
-        return idUser;
+    public Long getIdUser() {
+        return idUser.getIdUser();
     }
 
     public void setIdUser(User idUser) {
         this.idUser = idUser;
     }
 
-    public Message getIdMessage() {
-        return idMessage;
+    public Long getIdMessage() {
+        return idMessage.getIdMessage();
     }
 
     public void setIdMessage(Message idMessage) {

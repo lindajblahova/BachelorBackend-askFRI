@@ -13,13 +13,17 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import sk.uniza.fri.askfri.security.jwt.JwtAuthTokenFilter;
 import sk.uniza.fri.askfri.security.jwt.UnAuthFilter;
 import sk.uniza.fri.askfri.service.implementation.UserDetailServiceImplement;
 
-/**
- * Celé vytvorenie a konfigurácia bezpečnosti bola vytvorená podľa návodu
- * https://bezkoder.com/spring-boot-jwt-mysql-spring-security-architecture/
+/** Trieda pre konfiguraciu zabezpecenia
+ *  Cela implmentacia zabezpecenia je vytvorena podla nizsie uvedeneho zdroja
+ * implementuje AuthenticationEntryPoint
+ * zdroj: https://bezkoder.com/spring-boot-jwt-mysql-spring-security-architecture/
+ * @version 1.0
+ * @since   2021-04-21
  */
 @Configuration
 @EnableGlobalMethodSecurity(prePostEnabled = true)
@@ -45,6 +49,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         return super.authenticationManagerBean();
     }
 
+    /** Konfiguracia pre povolenie pristupu k endpointom, nastavenie entry point-u
+     * a metoda pre odhlasenie
+     * @param http
+     * @throws Exception
+     */
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.cors().and().csrf().disable()
@@ -52,11 +61,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.POST,"/api/login").permitAll()
                 .antMatchers(HttpMethod.POST,"/api/register").permitAll()
                 .antMatchers(HttpMethod.GET, "/api/admin/**").hasAuthority("ROLE_Admin")
-                .antMatchers(HttpMethod.POST, "/api/rooms/add").hasAuthority("ROLE_Vyucujuci")
-                .anyRequest() //all other requests need to be authenticated
+                .anyRequest()
                 .authenticated().and().exceptionHandling()
                 .authenticationEntryPoint(unauthorizedHandler).and().sessionManagement()
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .and()
+                .logout().logoutRequestMatcher(new AntPathRequestMatcher("/api/logout"));
         http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
     }
 

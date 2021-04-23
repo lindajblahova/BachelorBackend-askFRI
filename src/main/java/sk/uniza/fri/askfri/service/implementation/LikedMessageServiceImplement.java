@@ -13,10 +13,12 @@ import sk.uniza.fri.askfri.service.ILikedMessageService;
 import sk.uniza.fri.askfri.service.IMessageService;
 import sk.uniza.fri.askfri.service.IUserService;
 
-import javax.transaction.Transactional;
-import java.util.HashSet;
-import java.util.Set;
-
+/** Sluzba pracujuca s LikedMessage
+ * implementuje ILikedMessageService
+ * @author Linda Blahova
+ * @version 1.0
+ * @since   2021-04-21
+ */
 @Service
 public class LikedMessageServiceImplement implements ILikedMessageService {
 
@@ -30,6 +32,12 @@ public class LikedMessageServiceImplement implements ILikedMessageService {
         this.likedMessageRepository = likedMessageRepository;
     }
 
+    /** Pokusi sa najst pouzivatela a spravu a v uspesnom pripade vytvori novu
+     * reakciu, ktoru prida k pouzivatelovi a sprave a ulozi ich
+     * @param likedMessageDto DTO reakcia pouzivatela na spravu
+     * @return ResponseDto odpoved o ulozeni reakcie na spravu
+     * @throws NullPointerException ak nebola najdena sprava alebo pouzivatel
+     */
     @Override
     public ResponseDto saveLikedMessage(LikedMessageDto likedMessageDto) {
         Message parentMessage = this.messageService.findByIdMessage(likedMessageDto.getIdMessage());
@@ -47,18 +55,23 @@ public class LikedMessageServiceImplement implements ILikedMessageService {
         throw new NullPointerException("Nebolo možné odoslať reakciu");
     }
 
+
+    /** Pokusi sa najst pouzivatela a spravu. Vytvori ID reakcie na spravu a pokusi sa
+     * reakciu podla vytvoreneho id najst nasledne zmaze odkaz na reakciu u pouzivatela
+     * a spravy, vymaze spravu a ulozi pouzivatela a spravu
+     * @param idMessage ID spravy na ktoru pouzivatel reagoval
+     * @param idUser ID pouzivatela, ktory na spravu reagoval
+     * @return ResponseDto odpoved o zmazani reakcie na spravu pouzivatelom
+     */
     @Override
     public ResponseDto deleteLikedMessage(Long idMessage,Long idUser) {
         try
-        { ;
-            User user = this.userService.findUserByIdUser(idUser);
+        {   User user = this.userService.findUserByIdUser(idUser);
             Message message = this.messageService.findByIdMessage(idMessage);
             LikedMessageId likedMessageId = new LikedMessageId(idUser,idMessage);
             LikedMessage likedMessage = this.likedMessageRepository.findLikedMessageByIdUser_IdUserAndIdMessage_IdMessage(idUser, idMessage);
-
             user.removeLikedMessage(likedMessage);
             message.removeLikedMessage(likedMessage);
-            this.likedMessageRepository.deleteById(likedMessageId);
             this.userService.saveUser(user);
             this.messageService.saveMessage(message);
             return new ResponseDto(likedMessageId.hashCode(), "Reakcia bola zrušená");

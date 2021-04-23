@@ -16,6 +16,15 @@ import sk.uniza.fri.askfri.model.dto.login.UserDetailsDto;
 import sk.uniza.fri.askfri.security.jwt.JwtService;
 import sk.uniza.fri.askfri.service.IUserService;
 
+/**
+ * Controller - endpoint pre prihlasenie pouzivatela
+ * pristup je volny pre POST metodu
+ * cesta: /api
+ *
+ * @author Linda Blahova
+ * @version 1.0
+ * @since   2021-04-21
+ */
 @RestController
 @CrossOrigin(origins = "*")
 @RequestMapping("/api")
@@ -39,7 +48,15 @@ public class LoginController {
         this.userService = userService;
     }
 
-
+    /**
+     * Metoda pre prihlasenie pouzivatela do aplikacie pomocou POST requestu
+     * Obsahuje autentifikaciu pouzivatela a vytvorenie jwt
+     * cesta:  /api/login
+     * @param loginForm Obsahuje email a heslo pouzivatela z vyplneneho prihlasovacieho formulara
+     * @return ResponseEntity<LoginResponse> Pokial bol pouzivatel autentifikovany, vrati LoginResponse
+     *                                       obsahujuci ID,JWT a Rolu pouzivatela
+     *                                       Vracia null miesto ResponseDto ak zlyhala autentifikacia
+     */
     @PostMapping(value = "/login")
     public ResponseEntity<LoginResponse> authenticateUser(@RequestBody LoginForm loginForm) {
 
@@ -48,7 +65,6 @@ public class LoginController {
         );
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
-
         String jwt = this.jwtService.generateJwtToken(authentication);
         UserDetailsDto userDetails = (UserDetailsDto) authentication.getPrincipal();
         try {
@@ -58,7 +74,6 @@ public class LoginController {
         } catch (NullPointerException e)
         {
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
-
         }
     }
 }

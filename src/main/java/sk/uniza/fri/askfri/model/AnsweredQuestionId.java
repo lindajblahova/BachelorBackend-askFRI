@@ -3,6 +3,13 @@ package sk.uniza.fri.askfri.model;
 import java.io.Serializable;
 import java.util.Objects;
 
+/** Trieda reprezentujuca ID pre AnsweredQuestion
+ *  implementuje Serializable
+ *  obsahuje ID rodicovskeho pouzivatela a ID rodicovskej otazky
+ * @author Linda Blahova
+ * @version 1.0
+ * @since   2021-04-21
+ */
 public class AnsweredQuestionId implements Serializable {
     private Long idUser;
     private Long idQuestion;
@@ -13,20 +20,6 @@ public class AnsweredQuestionId implements Serializable {
     }
 
     public AnsweredQuestionId() {
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        AnsweredQuestionId that = (AnsweredQuestionId) o;
-        return Objects.equals(idUser, that.idUser) &&
-                Objects.equals(idQuestion, that.idQuestion);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(idUser, idQuestion);
     }
 
     public Long getIdUser() {
